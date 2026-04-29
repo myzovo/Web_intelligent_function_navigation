@@ -574,6 +574,7 @@
           <div class="tools">
             <input id="pageSearch" type="search" placeholder="Filter by URL or title" />
             <button id="downloadCsv" class="secondary">Download CSV</button>
+            <button id="downloadJson" class="secondary">Download JSON</button>
           </div>
         </div>
         <div class="table-wrap" id="pagesTableWrap"></div>
@@ -629,6 +630,7 @@
         pagesTableWrap: document.getElementById("pagesTableWrap"),
         pageSearch: document.getElementById("pageSearch"),
         downloadCsv: document.getElementById("downloadCsv"),
+        downloadJson: document.getElementById("downloadJson"),
         elementSearch: document.getElementById("elementSearch"),
         elementTypeFilter: document.getElementById("elementTypeFilter"),
         pageDetail: document.getElementById("pageDetail"),
@@ -1096,6 +1098,8 @@
 
         elements.downloadCsv.disabled = filteredPages.length === 0;
         elements.downloadCsv.onclick = () => downloadCsv(filteredPages, dataset);
+        elements.downloadJson.disabled = filteredPages.length === 0;
+        elements.downloadJson.onclick = () => downloadJson(filteredPages, dataset);
       }
 
       function renderEmpty() {
@@ -1111,19 +1115,43 @@
         const lines = ["title,url,elementCount,uniqueHrefs"];
         pages.forEach((page) => {
           const row = [
-            JSON.stringify(page.title || ""),
-            JSON.stringify(page.url || ""),
+            csvCell(page.title || ""),
+            csvCell(page.url || ""),
             page.elementCount,
             page.hrefCount
           ];
           lines.push(row.join(","));
         });
-        const blob = new Blob([lines.join("\n")], { type: "text/csv" });
+        triggerDownload(new Blob([lines.join("\r\n")], { type: "text/csv;charset=utf-8" }), `${dataset.source.replace(/\.json$/i, "")}-pages.csv`);
+      }
+
+      function downloadJson(pages, dataset) {
+        const payload = {
+          source: dataset.source,
+          startUrl: dataset.data.startUrl || "",
+          totalPages: dataset.data.totalPages || pages.length,
+          exportedAt: new Date().toISOString(),
+          pageCount: pages.length,
+          pages
+        };
+        triggerDownload(
+          new Blob([JSON.stringify(payload, null, 2)], { type: "application/json;charset=utf-8" }),
+          `${dataset.source.replace(/\.json$/i, "")}-pages.json`
+        );
+      }
+
+      function csvCell(value) {
+        return `"${String(value).replace(/"/g, '""')}"`;
+      }
+
+      function triggerDownload(blob, filename) {
         const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = `${dataset.source.replace(/\.json$/i, "")}-pages.csv`;
+        const objectUrl = URL.createObjectURL(blob);
+        link.href = objectUrl;
+        link.download = filename;
+        link.rel = "noopener";
         link.click();
-        URL.revokeObjectURL(link.href);
+        setTimeout(() => URL.revokeObjectURL(objectUrl), 0);
       }
 
       function setupEvents() {

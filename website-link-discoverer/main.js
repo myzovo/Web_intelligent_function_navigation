@@ -6,12 +6,19 @@ import { chromium } from "playwright";
 const DEFAULT_START_URL = "https://crawlee.dev";
 const DEFAULT_MAX_REQUESTS = 100;
 const DEFAULT_OUTPUT_PATH = "sitemap.json";
+const DEFAULT_DATABASE_PATH = path.resolve("..", "database", "sitemap.json");
 
 const startUrl =
   getArg("--url") ||
   getArg("--start-url") ||
   process.env.START_URL ||
   DEFAULT_START_URL;
+
+const startHostname = safeHostname(startUrl);
+const allowedDomains = buildAllowedDomains(
+  getArg("--allowed-domains") || process.env.ALLOWED_DOMAINS,
+  startHostname ? [startHostname] : []
+);
 
 const maxRequests =
   toNumber(getArg("--max-requests") || process.env.MAX_REQUESTS) || DEFAULT_MAX_REQUESTS;
@@ -28,12 +35,32 @@ const requestHandlerTimeoutSecs =
 const maxRequestRetries =
   toNumber(getArg("--max-retries") || process.env.MAX_REQUEST_RETRIES) || 1;
 
-const outputPath = getArg("--out") || process.env.OUTPUT_PATH || DEFAULT_OUTPUT_PATH;
-const browserChannel = normalizeBrowserChannel(process.env.BROWSER_CHANNEL);
+const outputPathArg = getArg("--out") || process.env.OUTPUT_PATH;
+const databasePath = resolveDatabasePath(
+  getArg("--database-path") || process.env.DATABASE_PATH || outputPathArg || DEFAULT_DATABASE_PATH
+);
+const outputPath = outputPathArg || DEFAULT_OUTPUT_PATH;
+const browserChannel = normalizeBrowserChannel(getArg("--browser-channel") || process.env.BROWSER_CHANNEL);
 
 const sensitiveWords = buildSensitiveWords(
   process.env.SENSITIVE_WORDS,
-  ["delete", "remove", "pay", "submit", "confirm", "logout", "reset", "clear"]
+  [
+    // English
+    "delete",
+    "remove",
+    "pay",
+    "submit",
+    "confirm",
+    "logout",
+    "reset",
+    "clear",
+    // Chinese (per Plan.md)
+    "删除",
+    "注销",
+    "支付",
+    "清空",
+    "重置"
+  ]
 );
 
 const pagesByUrl = new Map();
@@ -76,7 +103,7 @@ const crawler = new PlaywrightCrawler({
     await expandPanels(page, sensitiveWords);
 
     const title = await page.title().catch(() => "");
-    const elements = await extractInteractiveElements(page);
+    const elements = await extractInteractiveElements(page, allowedDomains, sensitiveWords);
     const pageUrl = page.url();
 
     if (!pagesByUrl.has(pageUrl)) {
@@ -102,8 +129,9 @@ const result = {
   pages
 };
 
-fs.writeFileSync(path.resolve(outputPath), JSON.stringify(result, null, 2), "utf-8");
-log.info(`Wrote ${outputPath} with ${pages.length} pages`);
+fs.mkdirSync(path.dirname(databasePath), { recursive: true });
+fs.writeFileSync(databasePath, JSON.stringify(result, null, 2), "utf-8");
+log.info(`Wrote ${databasePath} with ${pages.length} pages`);
 
 function getArg(name) {
   const idx = process.argv.indexOf(name);
@@ -117,11 +145,40 @@ function toNumber(value) {
   return Number.isFinite(n) ? n : undefined;
 }
 
+function resolveDatabasePath(value) {
+  const candidate = String(value || DEFAULT_DATABASE_PATH).trim();
+  if (path.isAbsolute(candidate)) {
+    return candidate;
+  }
+
+  return path.resolve(candidate);
+}
+
 function buildSensitiveWords(envValue, defaults) {
   const source = envValue ? envValue.split(",") : defaults;
   return source
     .map((word) => String(word).trim().toLowerCase())
     .filter((word) => word.length > 0);
+}
+
+function safeHostname(url) {
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return undefined;
+  }
+}
+
+function buildAllowedDomains(envValue, defaults) {
+  const source = envValue
+    ? String(envValue)
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean)
+    : defaults;
+
+  // Normalize domains for matching (e.g. strip leading "www.").
+  return (source || []).map((d) => String(d).toLowerCase().replace(/^www\./, ""));
 }
 
 function normalizeBrowserChannel(value) {
@@ -206,15 +263,25 @@ async function hardenPage(page) {
     .catch(() => undefined);
 }
 
-async function extractInteractiveElements(page) {
-  return page.evaluate(() => {
+async function extractInteractiveElements(page, allowedDomains, sensitiveWords) {
+  return page.evaluate((payload) => {
+    const allowedDomainsArg = payload.allowedDomains;
+    const sensitiveWordsArg = payload.sensitiveWords;
     const MAX_TEXT_LEN = 80;
+    const hasAllowedDomains = Array.isArray(allowedDomainsArg) && allowedDomainsArg.length > 0;
+    const normalizedAllowedDomains = hasAllowedDomains
+      ? allowedDomainsArg.map((d) => String(d).toLowerCase().replace(/^www\./, ""))
+      : [];
+
     const selectors = [
       "a[href]",
       "button",
       "[role=button]",
+      "[role=link]",
+      "[role=menuitem]",
       "[onclick]",
       "input[type=submit]",
+      "button[type=submit]",
       "input[type=button]",
       "form[action]"
     ];
@@ -226,9 +293,30 @@ async function extractInteractiveElements(page) {
     function isVisible(el) {
       const style = window.getComputedStyle(el);
       if (style.visibility === "hidden" || style.display === "none" || style.opacity === "0") return false;
+      if (el.offsetParent === null && !["fixed", "sticky"].includes(style.position)) return false;
       const rect = el.getBoundingClientRect();
       if (rect.width <= 1 || rect.height <= 1) return false;
       return true;
+    }
+
+    function normalizeHost(hostname) {
+      return String(hostname || "").toLowerCase().replace(/^www\./, "");
+    }
+
+    function isAllowedHostname(hostname) {
+      if (!hasAllowedDomains) return true;
+      const host = normalizeHost(hostname);
+      return normalizedAllowedDomains.some((d) => host === d || host.endsWith(`.${d}`));
+    }
+
+    function isDangerousText(text) {
+      if (!Array.isArray(sensitiveWordsArg) || sensitiveWordsArg.length === 0) return false;
+      const safetyText = String(text || "")
+        .toLowerCase()
+        .replace(/\s+/g, " ")
+        .trim()
+        .slice(0, 500);
+      return sensitiveWordsArg.some((w) => safetyText.includes(w));
     }
 
     function getText(el) {
@@ -239,6 +327,16 @@ async function extractInteractiveElements(page) {
       const value = el.value || "";
       const candidates = [text, aria, title, placeholder, value].filter(Boolean);
       return (candidates[0] || "").slice(0, MAX_TEXT_LEN);
+    }
+
+    function getSafetyText(el) {
+      const text = (el.innerText || el.textContent || "").replace(/\s+/g, " ").trim();
+      const aria = el.getAttribute("aria-label") || "";
+      const title = el.getAttribute("title") || "";
+      const placeholder = el.getAttribute("placeholder") || "";
+      const value = el.value || "";
+      const candidates = [text, aria, title, placeholder, value].filter(Boolean);
+      return candidates.join(" ").trim();
     }
 
     function escapeAttrValue(value) {
@@ -255,11 +353,65 @@ async function extractInteractiveElements(page) {
       }
     }
 
-    // Prefer stable attributes; fall back to a tag path with :nth-of-type.
+    function getKeyClasses(el) {
+      try {
+        const classes = Array.from(el.classList || []).map((c) => String(c).trim()).filter(Boolean);
+        const blacklist = new Set([
+          // Common UI utility words that often appear everywhere (less stable).
+          "btn",
+          "button",
+          "link",
+          "nav",
+          "menu",
+          "sidebar",
+          "breadcrumb",
+          "active"
+        ]);
+        return classes
+          .filter((c) => c.length >= 3)
+          .filter((c) => !blacklist.has(c.toLowerCase()))
+          .slice(0, 2);
+      } catch {
+        return [];
+      }
+    }
+
+    function buildPathParts(el, maxHops = 8) {
+      const parts = [];
+      let current = el;
+      let hops = 0;
+
+      while (current && current !== root && hops < maxHops) {
+        if (!current.tagName) break;
+        const tag = current.tagName.toLowerCase();
+        const classes = getKeyClasses(current);
+        const classPart = classes.length ? `.${classes.join(".")}` : "";
+        parts.unshift(`${tag}${classPart}`);
+        current = current.parentElement;
+        hops += 1;
+      }
+
+      return parts;
+    }
+
+    function pickShortestUniquePath(el) {
+      const parts = buildPathParts(el);
+      if (!parts.length) return el.tagName.toLowerCase();
+
+      // Try shortest selectors first: suffix from element upward.
+      for (let i = parts.length - 1; i >= 0; i -= 1) {
+        const candidate = parts.slice(i).join(" > ");
+        if (isUnique(candidate)) return candidate;
+      }
+
+      return parts.join(" > ");
+    }
+
+    // Prefer stable attributes; fall back to a compact tag+class path.
     function generateStableSelector(el) {
       if (el.id) {
         const sel = `#${escapeAttrValue(el.id)}`;
-        if (isUnique(sel)) return sel;
+        return sel;
       }
 
       const dataAttrs = ["data-testid", "data-test", "data-qa", "data-cy", "data-id"];
@@ -273,28 +425,58 @@ async function extractInteractiveElements(page) {
 
       const role = el.getAttribute("role");
       const ariaLabel = el.getAttribute("aria-label");
+      const ariaLabelledBy = el.getAttribute("aria-labelledby");
+
+      if (ariaLabel) {
+        const sel = `[aria-label="${escapeAttrValue(ariaLabel)}"]`;
+        return sel;
+      }
+
+      if (ariaLabelledBy) {
+        const sel = `[aria-labelledby="${escapeAttrValue(ariaLabelledBy)}"]`;
+        return sel;
+      }
+
       if (role && ariaLabel) {
         const sel = `[role="${escapeAttrValue(role)}"][aria-label="${escapeAttrValue(ariaLabel)}"]`;
-        if (isUnique(sel)) return sel;
+        return sel;
       }
 
-      const parts = [];
-      let current = el;
-      while (current && current !== root && parts.length < 30) {
-        const tag = current.tagName.toLowerCase();
-        const parentEl = current.parentElement;
-        if (!parentEl) break;
-        const sameTagSiblings = Array.from(parentEl.children).filter(
-          (child) => child.tagName === current.tagName
-        );
-        const idx = sameTagSiblings.indexOf(current) + 1;
-        const part = sameTagSiblings.length > 1 ? `${tag}:nth-of-type(${idx})` : tag;
-        parts.unshift(part);
-        current = parentEl;
-      }
+      return pickShortestUniquePath(el);
+    }
 
-      const selector = parts.join(" > ");
-      return selector || el.tagName.toLowerCase();
+    function extractContainerLabel(container) {
+      try {
+        const aria = container.getAttribute && container.getAttribute("aria-label");
+        if (aria) return String(aria).trim().slice(0, 80);
+
+        const title = container.getAttribute && container.getAttribute("title");
+        if (title) return String(title).trim().slice(0, 80);
+
+        const heading =
+          container.querySelector &&
+          container.querySelector("h1,h2,h3,h4,h5,h6,[role='heading'],.section-title,.section-header");
+        if (heading) {
+          const text = (heading.innerText || heading.textContent || "").replace(/\s+/g, " ").trim();
+          if (text) return text.slice(0, 80);
+        }
+
+        const link = container.querySelector && container.querySelector("a[href], button, [role='link']");
+        if (link) {
+          const text = (link.innerText || link.textContent || "").replace(/\s+/g, " ").trim();
+          if (text) return text.slice(0, 80);
+        }
+
+        const id = container.id;
+        if (id) return String(id).trim().slice(0, 80);
+
+        const className = typeof container.className === "string" ? container.className : "";
+        const firstClass = className.split(/\s+/).filter(Boolean)[0];
+        if (firstClass) return firstClass.trim().slice(0, 80);
+      } catch {
+        // ignore
+      }
+      return "";
     }
 
     function getContextPath(el) {
@@ -302,23 +484,26 @@ async function extractInteractiveElements(page) {
       let current = el;
       let hops = 0;
 
-      while (current && hops < 6) {
-        const tag = current.tagName ? current.tagName.toLowerCase() : "";
-        const role = current.getAttribute ? current.getAttribute("role") || "" : "";
-        const aria = current.getAttribute ? current.getAttribute("aria-label") || "" : "";
-        const id = current.id || "";
-        const className = typeof current.className === "string" ? current.className : "";
+      while (current && hops < 8) {
+        if (current && current.nodeType === 1) {
+          const tag = current.tagName ? current.tagName.toLowerCase() : "";
+          const role = current.getAttribute ? current.getAttribute("role") || "" : "";
+          const className = typeof current.className === "string" ? current.className : "";
 
-        const isNavish =
-          tag === "nav" ||
-          tag === "aside" ||
-          role === "navigation" ||
-          className.includes("sidebar") ||
-          className.includes("breadcrumb");
+          const isNavish =
+            tag === "nav" ||
+            tag === "aside" ||
+            role === "navigation" ||
+            tag === "ul" && className.includes("menu") ||
+            role === "menu" ||
+            className.includes("sidebar") ||
+            className.includes("breadcrumb") ||
+            (current.matches && current.matches("ul.menu,[role='menu']"));
 
-        if (isNavish) {
-          const label = (aria || id || tag).trim();
-          if (label) labels.push(label);
+          if (isNavish) {
+            const label = extractContainerLabel(current);
+            if (label && (!labels.length || labels[labels.length - 1] !== label)) labels.push(label);
+          }
         }
 
         current = current.parentElement;
@@ -333,7 +518,11 @@ async function extractInteractiveElements(page) {
       for (const el of elements) {
         if (!isVisible(el)) continue;
 
-        const tag = el.tagName.toLowerCase();
+        // Skip dangerous/unrelated elements early (we are not going to click them, but they pollute the map).
+        if (isDangerousText(getSafetyText(el))) continue;
+
+        const tag = (el.tagName || "").toLowerCase();
+        const role = el.getAttribute ? el.getAttribute("role") : "";
         let type = "button";
         let href = "";
 
@@ -343,8 +532,29 @@ async function extractInteractiveElements(page) {
         } else if (tag === "form") {
           type = "form";
           href = el.action || "";
+        } else if (tag === "input" && el.type === "submit") {
+          type = "submit";
+        } else if (tag === "button" && el.type === "submit") {
+          type = "submit";
+        } else if (role === "menuitem") {
+          type = "menuitem";
+        } else if (role === "link") {
+          type = "role-link";
+        } else if (el.hasAttribute && el.hasAttribute("onclick")) {
+          type = "onclick";
         } else {
           type = "button";
+        }
+
+        if (href) {
+          try {
+            const u = new URL(href, document.baseURI);
+            if (!["http:", "https:"].includes(u.protocol)) continue;
+            if (!isAllowedHostname(u.hostname)) continue;
+            href = u.href;
+          } catch {
+            // Ignore invalid URLs (keep as-is only if we can't parse).
+          }
         }
 
         const selectorText = generateStableSelector(el);
@@ -366,5 +576,5 @@ async function extractInteractiveElements(page) {
     }
 
     return out;
-  });
+  }, { allowedDomains, sensitiveWords });
 }

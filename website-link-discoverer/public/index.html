@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Web 智能功能导航系统</title>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
+
+    :root {
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-tertiary: #334155;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --accent-blue: #3b82f6;
+      --accent-cyan: #06b6d4;
+      --accent-green: #10b981;
+      --accent-orange: #f97316;
+      --accent-red: #ef4444;
+      --border-color: #475569;
+      --shadow: rgba(0, 0, 0, 0.5);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+      color: var(--text-primary);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    header {
+      text-align: center;
+      padding: 40px 20px;
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(6, 182, 212, 0.1));
+      border-radius: 20px;
+      border: 1px solid var(--border-color);
+      margin-bottom: 30px;
+      backdrop-filter: blur(10px);
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 24px;
+      margin-bottom: 30px;
+    }
+
+    @media (max-width: 1024px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      background: var(--bg-secondary);
+      border-radius: 16px;
+      padding: 24px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 6px var(--shadow);
+    }
+
+    .panel-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--accent-cyan);
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px 14px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+
+    input::placeholder {
+      color: var(--text-secondary);
+      opacity: 0.7;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    button {
+      flex: 1;
+      padding: 14px 24px;
+      border: none;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+      color: white;
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, var(--accent-red), #dc2626);
+      color: white;
+    }
+
+    .btn-danger:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5);
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    .status-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-top: 16px;
+    }
+
+    .status-idle {
+      background: rgba(148, 163, 184, 0.2);
+      color: var(--text-secondary);
+    }
+
+    .status-running {
+      background: rgba(59, 130, 246, 0.2);
+      color: var(--accent-blue);
+      animation: pulse 2s infinite;
+    }
+
+    .status-completed {
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--accent-green);
+    }
+
+    .status-error {
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--accent-red);
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .log-container {
+      height: 400px;
+      overflow-y: auto;
+      background: var(--bg-primary);
+      border-radius: 12px;
+      padding: 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      border: 1px solid var(--border-color);
+    }
+
+    .log-entry {
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(71, 85, 105, 0.3);
+      display: flex;
+      gap: 12px;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .log-time {
+      color: var(--text-secondary);
+      font-size: 0.75rem;
+      white-space: nowrap;
+    }
+
+    .log-message {
+      color: var(--text-primary);
+      word-break: break-word;
+    }
+
+    .log-info { color: var(--accent-cyan); }
+    .log-error { color: var(--accent-red); }
+    .log-success { color: var(--accent-green); }
+
+    .results-section {
+      margin-top: 30px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 12px;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn.active {
+      background: var(--accent-blue);
+      color: white;
+    }
+
+    .tab-btn:hover:not(.active) {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: var(--bg-tertiary);
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .stat-label {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-top: 8px;
+    }
+
+    .table-container {
+      overflow-x: auto;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-tertiary);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    thead {
+      background: var(--bg-secondary);
+    }
+
+    th {
+      padding: 14px 16px;
+      text-align: left;
+      font-weight: 600;
+      color: var(--accent-cyan);
+      border-bottom: 2px solid var(--border-color);
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      letter-spacing: 0.05em;
+    }
+
+    td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-primary);
+    }
+
+    tbody tr:hover {
+      background: rgba(59, 130, 246, 0.1);
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .tag-link { background: rgba(59, 130, 246, 0.2); color: var(--accent-blue); }
+    .tag-button { background: rgba(249, 115, 22, 0.2); color: var(--accent-orange); }
+    .tag-form { background: rgba(16, 185, 129, 0.2); color: var(--accent-green); }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-secondary);
+    }
+
+    .empty-icon {
+      font-size: 4rem;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg-primary);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--bg-tertiary);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--border-color);
+    }
+
+    footer {
+      text-align: center;
+      padding: 30px;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-top: 40px;
+      border-top: 1px solid var(--border-color);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🌐 Web 智能功能导航系统</h1>
+      <p class="subtitle">智能爬取 · 自动发现 · 可视化分析</p>
+    </header>
+
+    <div class="main-grid">
+      <div class="panel">
+        <h2 class="panel-title">⚙️ 爬虫配置</h2>
+
+        <div class="form-group">
+          <label for="url">目标网址</label>
+          <input type="url" id="url" placeholder="https://example.com" value="https://crawlee.dev" />
+        </div>
+
+        <div class="form-group">
+          <label for="maxRequests">最大请求数</label>
+          <input type="number" id="maxRequests" value="100" min="1" max="10000" />
+        </div>
+
+        <div class="form-group">
+          <label for="maxConcurrency">并发数</label>
+          <input type="number" id="maxConcurrency" value="1" min="1" max="10" />
+        </div>
+
+        <div class="form-group">
+          <label for="navigationTimeout">导航超时 (秒)</label>
+          <input type="number" id="navigationTimeout" value="45" min="10" max="300" />
+        </div>
+
+        <div class="form-group">
+          <label for="requestHandlerTimeout">请求超时 (秒)</label>
+          <input type="number" id="requestHandlerTimeout" value="180" min="30" max="600" />
+        </div>
+
+        <div class="form-group">
+          <label for="browserChannel">浏览器通道</label>
+          <select id="browserChannel">
+            <option value="">默认 (Chromium)</option>
+            <option value="chrome">Chrome</option>
+            <option value="msedge">Microsoft Edge</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="databasePath">数据库文件</label>
+          <input type="text" id="databasePath" value="../database/sitemap.json" placeholder="../database/sitemap.json" />
+        </div>
+
+        <div class="btn-group">
+          <button class="btn-primary" id="startBtn" onclick="startCrawl()">
+            ▶ 开始爬取
+          </button>
+          <button class="btn-danger" id="stopBtn" onclick="stopCrawl()" disabled>
+            ⏹ 停止
+          </button>
+        </div>
+
+        <div class="status-indicator status-idle" id="statusIndicator">
+          <span class="dot"></span>
+          <span id="statusText">就绪</span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2 class="panel-title">📋 实时日志</h2>
+        <div class="log-container" id="logContainer">
+          <div class="log-entry log-info">
+            <span class="log-time">--:--:--</span>
+            <span class="log-message">系统就绪，等待开始爬取...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="results-section panel" id="resultsSection" style="display: none;">
+      <h2 class="panel-title">📊 爬取结果</h2>
+
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('overview')">概览</button>
+        <button class="tab-btn" onclick="switchTab('pages')">页面列表</button>
+        <button class="tab-btn" onclick="switchTab('elements')">元素详情</button>
+      </div>
+
+      <div class="control" style="margin: 18px 0 8px;">
+        <button id="downloadResultsBtn" class="secondary" disabled onclick="downloadResults()">下载结果 JSON</button>
+        <span class="subtle" id="downloadHint">完成一次爬取后可直接下载当前结果。</span>
+      </div>
+
+      <div id="overviewTab">
+        <div class="stats-grid" id="statsGrid"></div>
+      </div>
+
+      <div id="pagesTab" style="display: none;">
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>标题</th>
+                <th>URL</th>
+                <th>元素数量</th>
+                <th>唯一链接数</th>
+              </tr>
+            </thead>
+            <tbody id="pagesTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="elementsTab" style="display: none;">
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>类型</th>
+                <th>文本</th>
+                <th>链接/Href</th>
+                <th>选择器</th>
+                <th>上下文</th>
+              </tr>
+            </thead>
+            <tbody id="elementsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <p>Web Intelligent Function Navigation System v2.0 | Powered by Crawlee + Playwright</p>
+    </footer>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    let socket = null;
+    let crawlResults = null;
+
+    function connectSocket() {
+      socket = io();
+
+      socket.on("connect", () => {
+        addLog("success", "已连接到服务器");
+        checkStatus();
+      });
+
+      socket.on("disconnect", () => {
+        addLog("error", "与服务器断开连接");
+      });
+
+      socket.on("crawl:status", (data) => {
+        updateStatus(data.status);
+        if (data.message) {
+          addLog("info", data.message);
+        }
+      });
+
+      socket.on("crawl:log", (data) => {
+        addLog(data.type, data.message, data.timestamp);
+      });
+
+      socket.on("crawl:complete", (data) => {
+        crawlResults = data.results;
+        showResults(crawlResults);
+        updateDownloadState();
+        addLog("success", `爬取完成! 共发现 ${crawlResults.pages.length} 个页面`);
+      });
+
+      socket.on("crawl:error", (data) => {
+        addLog("error", data.error || "发生错误");
+        updateStatus("error");
+      });
+    }
+
+    function addLog(type, message, timestamp) {
+      const container = document.getElementById("logContainer");
+      const entry = document.createElement("div");
+      entry.className = `log-entry log-${type}`;
+
+      const time = document.createElement("span");
+      time.className = "log-time";
+      time.textContent = timestamp ? new Date(timestamp).toLocaleTimeString() : new Date().toLocaleTimeString();
+
+      const msg = document.createElement("span");
+      msg.className = `log-message log-${type}`;
+      msg.textContent = message;
+
+      entry.appendChild(time);
+      entry.appendChild(msg);
+
+      container.appendChild(entry);
+      container.scrollTop = container.scrollHeight;
+
+      if (container.children.length > 500) {
+        container.removeChild(container.firstChild);
+      }
+    }
+
+    function updateStatus(status) {
+      const indicator = document.getElementById("statusIndicator");
+      const text = document.getElementById("statusText");
+      const startBtn = document.getElementById("startBtn");
+      const stopBtn = document.getElementById("stopBtn");
+
+      indicator.className = "status-indicator";
+
+      switch (status) {
+        case "running":
+        case "started":
+          indicator.classList.add("status-running");
+          text.textContent = "正在爬取...";
+          startBtn.disabled = true;
+          stopBtn.disabled = false;
+          break;
+        case "completed":
+          indicator.classList.add("status-completed");
+          text.textContent = "已完成";
+          startBtn.disabled = false;
+          stopBtn.disabled = true;
+          break;
+        case "stopped":
+          indicator.classList.add("status-error");
+          text.textContent = "已停止";
+          startBtn.disabled = false;
+          stopBtn.disabled = true;
+          break;
+        case "error":
+          indicator.classList.add("status-error");
+          text.textContent = "错误";
+          startBtn.disabled = false;
+          stopBtn.disabled = true;
+          break;
+        default:
+          indicator.classList.add("status-idle");
+          text.textContent = "就绪";
+          startBtn.disabled = false;
+          stopBtn.disabled = true;
+      }
+
+      updateDownloadState();
+    }
+
+    function updateDownloadState() {
+      const downloadBtn = document.getElementById("downloadResultsBtn");
+      if (!downloadBtn) return;
+      downloadBtn.disabled = !crawlResults;
+    }
+
+    async function checkStatus() {
+      try {
+        const response = await fetch("/api/status");
+        const data = await response.json();
+        if (data.isCrawling) {
+          updateStatus("running");
+        } else if (data.hasResults && data.results) {
+          if (!crawlResults) {
+            const resultsResponse = await fetch("/api/results");
+            crawlResults = await resultsResponse.json();
+            showResults(crawlResults);
+          }
+          updateStatus("completed");
+        }
+      } catch (error) {
+        console.error("Failed to check status:", error);
+      }
+    }
+
+    async function startCrawl() {
+      const config = {
+        url: document.getElementById("url").value,
+        maxRequests: parseInt(document.getElementById("maxRequests").value),
+        maxConcurrency: parseInt(document.getElementById("maxConcurrency").value),
+        navigationTimeout: parseInt(document.getElementById("navigationTimeout").value),
+        requestHandlerTimeout: parseInt(document.getElementById("requestHandlerTimeout").value),
+        browserChannel: document.getElementById("browserChannel").value,
+        databasePath: document.getElementById("databasePath").value,
+        outputPath: `sitemap-${Date.now()}.json`
+      };
+
+      if (!config.url) {
+        alert("请输入目标网址");
+        return;
+      }
+
+      try {
+        addLog("info", `开始爬取: ${config.url}`);
+        const response = await fetch("/api/crawl/start", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(config)
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+          throw new Error(result.error || "启动失败");
+        }
+
+        updateStatus("started");
+        addLog("info", result.message);
+      } catch (error) {
+        addLog("error", error.message);
+        updateStatus("error");
+      }
+    }
+
+    async function stopCrawl() {
+      try {
+        const response = await fetch("/api/crawl/stop", { method: "POST" });
+        const result = await response.json();
+
+        if (result.success) {
+          addLog("info", result.message);
+        }
+      } catch (error) {
+        addLog("error", error.message);
+      }
+    }
+
+    function showResults(results) {
+      const section = document.getElementById("resultsSection");
+      section.style.display = "block";
+
+      renderStats(results);
+      renderPagesTable(results.pages);
+      renderElementsTable(results.pages);
+    }
+
+    async function downloadResults() {
+      if (!crawlResults) {
+        addLog("error", "暂无可下载的结果");
+        return;
+      }
+
+      try {
+        const response = await fetch("/api/results/download");
+        if (!response.ok) {
+          throw new Error("下载失败");
+        }
+
+        const blob = await response.blob();
+        const disposition = response.headers.get("content-disposition") || "";
+        const fileMatch = disposition.match(/filename="?([^";]+)"?/i);
+        const fileName = fileMatch?.[1] || `crawl-results-${Date.now()}.json`;
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+        addLog("success", "结果已开始下载");
+      } catch (error) {
+        addLog("error", error.message);
+      }
+    }
+
+    function renderStats(results) {
+      const grid = document.getElementById("statsGrid");
+
+      let totalElements = 0;
+      const hrefSet = new Set();
+      const domains = new Set();
+
+      results.pages.forEach(page => {
+        const elements = page.elements || [];
+        totalElements += elements.length;
+        elements.forEach(el => {
+          if (el.href) hrefSet.add(el.href);
+        });
+        try {
+          const url = new URL(page.url);
+          domains.add(url.hostname);
+        } catch (e) {}
+      });
+
+      const stats = [
+        { label: "爬取页面数", value: results.pages.length },
+        { label: "总页面数", value: results.totalPages },
+        { label: "发现的元素", value: totalElements },
+        { label: "唯一链接", value: hrefSet.size },
+        { label: "域名数量", value: domains.size },
+        { label: "平均元素/页", value: (totalElements / results.pages.length || 0).toFixed(1) }
+      ];
+
+      grid.innerHTML = stats.map(stat => `
+        <div class="stat-card">
+          <div class="stat-value">${stat.value}</div>
+          <div class="stat-label">${stat.label}</div>
+        </div>
+      `).join("");
+    }
+
+    function renderPagesTable(pages) {
+      const tbody = document.getElementById("pagesTableBody");
+
+      tbody.innerHTML = pages.map((page, idx) => `
+        <tr onclick="showPageElements(${idx})">
+          <td>${page.title || "(无标题)"}</td>
+          <td style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;">${page.url}</td>
+          <td><strong>${(page.elements || []).length}</strong></td>
+          <td>${new Set((page.elements || []).filter(el => el.href).map(el => el.href)).size}</td>
+        </tr>
+      `).join("");
+    }
+
+    function renderElementsTable(pages) {
+      const tbody = document.getElementById("elementsTableBody");
+      let allElements = [];
+
+      pages.forEach((page, pageIdx) => {
+        (page.elements || []).forEach((el, elIdx) => {
+          allElements.push({
+            ...el,
+            _pageTitle: page.title,
+            _pageUrl: page.url
+          });
+        });
+      });
+
+      if (allElements.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--text-secondary);">暂无数据</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = allElements.slice(0, 200).map(el => `
+        <tr>
+          <td><span class="tag tag-${el.type}">${el.type}</span></td>
+          <td>${el.text || "-"}</td>
+          <td style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; word-break: break-all;">
+            ${el.href ? `<a href="${el.href}" target="_blank" rel="noopener" style="color:var(--accent-cyan);">${el.href}</a>` : "-"}
+          </td>
+          <td style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">${el.selector || "-"}</td>
+          <td style="color:var(--text-secondary);font-size:0.85rem;">${el.context || "-"}</td>
+        </tr>
+      `).join("");
+
+      if (allElements.length > 200) {
+        tbody.innerHTML += `<tr><td colspan="5" style="text-align:center;color:var(--text-secondary);padding:20px;">
+          显示前 200 条记录，共 ${allElements.length} 条
+        </td></tr>`;
+      }
+    }
+
+    function switchTab(tabName) {
+      document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
+      event.target.classList.add("active");
+
+      document.getElementById("overviewTab").style.display = tabName === "overview" ? "block" : "none";
+      document.getElementById("pagesTab").style.display = tabName === "pages" ? "block" : "none";
+      document.getElementById("elementsTab").style.display = tabName === "elements" ? "block" : "none";
+    }
+
+    function showPageElements(pageIdx) {
+      switchTab('pages');
+      if (crawlResults && crawlResults.pages[pageIdx]) {
+        const page = crawlResults.pages[pageIdx];
+        addLog("info", `查看页面: ${page.title || page.url}`);
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      connectSocket();
+    });
+  </script>
+</body>
+</html>

@@ -1,2 +1,4 @@
 node_modules
-sitemap.json
+sitemap*.json
+.env
+.env.local
