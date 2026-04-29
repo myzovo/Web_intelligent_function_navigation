@@ -1,0 +1,9 @@
+{
+	"id": "NNFTLT2ZBweY3Hw",
+	"json": "{\"id\":\"NNFTLT2ZBweY3Hw\",\"url\":\"http://www.baidu.com/s?pd=note&rpf=pc\",\"loadedUrl\":\"https://www.baidu.com/\",\"uniqueKey\":\"http://www.baidu.com/s?pd=note&rpf=pc\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"__crawlee\":{\"crawlDepth\":1,\"enqueueStrategy\":\"same-hostname\",\"state\":4}},\"handledAt\":\"2026-04-29T00:15:04.741Z\"}",
+	"method": "GET",
+	"orderNo": null,
+	"retryCount": 0,
+	"uniqueKey": "http://www.baidu.com/s?pd=note&rpf=pc",
+	"url": "http://www.baidu.com/s?pd=note&rpf=pc"
+}

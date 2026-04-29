@@ -1,0 +1,9 @@
+{
+	"id": "KqtgTrPa8aS1xff",
+	"json": "{\"id\":\"KqtgTrPa8aS1xff\",\"url\":\"https://www.baidu.com/s?rtt=1&bsst=1&cl=2&tn=news&ie=utf-8&word=%E6%AD%BC10%E5%AF%B9%E5%9C%B0%E5%AE%9E%E5%BC%B9%E5%B0%84%E5%87%BB%E7%81%AB%E5%8A%9B%E5%85%A8%E5%BC%80\",\"loadedUrl\":\"https://www.baidu.com/s?rtt=1&bsst=1&cl=2&tn=news&ie=utf-8&word=%E6%AD%BC10%E5%AF%B9%E5%9C%B0%E5%AE%9E%E5%BC%B9%E5%B0%84%E5%87%BB%E7%81%AB%E5%8A%9B%E5%85%A8%E5%BC%80\",\"uniqueKey\":\"https://www.baidu.com/s?bsst=1&cl=2&ie=utf-8&rtt=1&tn=news&word=%E6%AD%BC10%E5%AF%B9%E5%9C%B0%E5%AE%9E%E5%BC%B9%E5%B0%84%E5%87%BB%E7%81%AB%E5%8A%9B%E5%85%A8%E5%BC%80\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"__crawlee\":{\"crawlDepth\":2,\"enqueueStrategy\":\"same-hostname\",\"state\":4}},\"handledAt\":\"2026-04-29T00:15:39.378Z\"}",
+	"method": "GET",
+	"orderNo": null,
+	"retryCount": 0,
+	"uniqueKey": "https://www.baidu.com/s?bsst=1&cl=2&ie=utf-8&rtt=1&tn=news&word=%E6%AD%BC10%E5%AF%B9%E5%9C%B0%E5%AE%9E%E5%BC%B9%E5%B0%84%E5%87%BB%E7%81%AB%E5%8A%9B%E5%85%A8%E5%BC%80",
+	"url": "https://www.baidu.com/s?rtt=1&bsst=1&cl=2&tn=news&ie=utf-8&word=%E6%AD%BC10%E5%AF%B9%E5%9C%B0%E5%AE%9E%E5%BC%B9%E5%B0%84%E5%87%BB%E7%81%AB%E5%8A%9B%E5%85%A8%E5%BC%80"
+}

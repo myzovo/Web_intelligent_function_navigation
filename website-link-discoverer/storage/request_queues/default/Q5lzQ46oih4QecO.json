@@ -1,0 +1,9 @@
+{
+	"id": "Q5lzQ46oih4QecO",
+	"json": "{\"id\":\"Q5lzQ46oih4QecO\",\"url\":\"https://www.baidu.com/s?pd=note&rpf=pc&dyTabStr=MTIsMCwzLDEsMiwxMyw3LDYsNSw5&word=%E7%9C%9F%E6%AD%A3%E7%9A%84%E5%85%B1%E4%BA%A7%E5%85%9A%E4%BA%BA%E5%B0%B1%E5%BA%94%E8%AF%A5%E5%A0%82%E5%A0%82%E6%AD%A3%E6%AD%A3\",\"loadedUrl\":\"https://www.baidu.com/s?pd=note&rpf=pc&dyTabStr=MTIsMCwzLDEsMiwxMyw3LDYsNSw5&word=%E7%9C%9F%E6%AD%A3%E7%9A%84%E5%85%B1%E4%BA%A7%E5%85%9A%E4%BA%BA%E5%B0%B1%E5%BA%94%E8%AF%A5%E5%A0%82%E5%A0%82%E6%AD%A3%E6%AD%A3\",\"uniqueKey\":\"https://www.baidu.com/s?dyTabStr=MTIsMCwzLDEsMiwxMyw3LDYsNSw5&pd=note&rpf=pc&word=%E7%9C%9F%E6%AD%A3%E7%9A%84%E5%85%B1%E4%BA%A7%E5%85%9A%E4%BA%BA%E5%B0%B1%E5%BA%94%E8%AF%A5%E5%A0%82%E5%A0%82%E6%AD%A3%E6%AD%A3\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"__crawlee\":{\"crawlDepth\":2,\"enqueueStrategy\":\"same-hostname\",\"state\":4}},\"handledAt\":\"2026-04-29T00:15:21.134Z\"}",
+	"method": "GET",
+	"orderNo": null,
+	"retryCount": 0,
+	"uniqueKey": "https://www.baidu.com/s?dyTabStr=MTIsMCwzLDEsMiwxMyw3LDYsNSw5&pd=note&rpf=pc&word=%E7%9C%9F%E6%AD%A3%E7%9A%84%E5%85%B1%E4%BA%A7%E5%85%9A%E4%BA%BA%E5%B0%B1%E5%BA%94%E8%AF%A5%E5%A0%82%E5%A0%82%E6%AD%A3%E6%AD%A3",
+	"url": "https://www.baidu.com/s?pd=note&rpf=pc&dyTabStr=MTIsMCwzLDEsMiwxMyw3LDYsNSw5&word=%E7%9C%9F%E6%AD%A3%E7%9A%84%E5%85%B1%E4%BA%A7%E5%85%9A%E4%BA%BA%E5%B0%B1%E5%BA%94%E8%AF%A5%E5%A0%82%E5%A0%82%E6%AD%A3%E6%AD%A3"
+}

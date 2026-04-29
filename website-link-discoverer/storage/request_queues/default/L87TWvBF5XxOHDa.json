@@ -1,0 +1,9 @@
+{
+	"id": "L87TWvBF5XxOHDa",
+	"json": "{\"id\":\"L87TWvBF5XxOHDa\",\"url\":\"https://www.baidu.com/duty/copyright.html\",\"loadedUrl\":\"https://www.baidu.com/duty/copyright.html\",\"uniqueKey\":\"https://www.baidu.com/duty/copyright.html\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"__crawlee\":{\"crawlDepth\":2,\"enqueueStrategy\":\"same-hostname\",\"state\":4}},\"handledAt\":\"2026-04-29T00:16:06.872Z\"}",
+	"method": "GET",
+	"orderNo": null,
+	"retryCount": 0,
+	"uniqueKey": "https://www.baidu.com/duty/copyright.html",
+	"url": "https://www.baidu.com/duty/copyright.html"
+}

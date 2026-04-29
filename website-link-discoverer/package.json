@@ -1,0 +1,14 @@
+{
+  "name": "website-link-discoverer",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js"
+  },
+  "dependencies": {
+    "crawlee": "^3.9.0",
+    "playwright": "^1.44.0"
+  }
+}
