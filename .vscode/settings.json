@@ -1,9 +1,0 @@
-{
-    "chat.tools.terminal.autoApprove": {
-        "/^\\$env:PLAYWRIGHT_DOWNLOAD_CONNECTION_TIMEOUT=\"180000\"; npx playwright install chromium$/": {
-            "approve": true,
-            "matchCommandLine": true
-        }
-    },
-    "liveServer.settings.port": 5510
-}
