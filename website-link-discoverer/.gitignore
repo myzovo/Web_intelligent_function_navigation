@@ -1,6 +1,0 @@
-node_modules
-sitemap*.json
-outputs/
-storage/
-.env
-.env.local
