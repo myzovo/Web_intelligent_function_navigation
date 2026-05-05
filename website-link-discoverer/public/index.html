@@ -3,23 +3,28 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Web 智能功能导航系统</title>
+  <title>Web 智能功能导航控制台</title>
   <style>
-    @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
+    @import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@300;400;500;700&family=Space+Grotesk:wght@400;500;600;700&family=Sora:wght@300;400;500;600;700&display=swap");
 
     :root {
-      --bg-primary: #0f172a;
-      --bg-secondary: #1e293b;
-      --bg-tertiary: #334155;
-      --text-primary: #f1f5f9;
-      --text-secondary: #94a3b8;
-      --accent-blue: #3b82f6;
-      --accent-cyan: #06b6d4;
-      --accent-green: #10b981;
-      --accent-orange: #f97316;
-      --accent-red: #ef4444;
-      --border-color: #475569;
-      --shadow: rgba(0, 0, 0, 0.5);
+      --bg: #f6f1ea;
+      --bg-soft: #fff8f0;
+      --panel: #ffffff;
+      --panel-shadow: rgba(16, 24, 40, 0.08);
+      --ink: #1f2a37;
+      --muted: #5f6b7a;
+      --border: #e6dccf;
+      --accent: #1f8a70;
+      --accent-strong: #0f766e;
+      --accent-warm: #f08a5d;
+      --accent-sun: #f2b94a;
+      --danger: #d94f4f;
+      --success: #199473;
+      --info: #1f7dbd;
+      --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --heading: "Space Grotesk", "Noto Sans SC", sans-serif;
+      --body: "Sora", "Noto Sans SC", sans-serif;
     }
 
     * {
@@ -29,189 +34,500 @@
     }
 
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
-      color: var(--text-primary);
+      font-family: var(--body);
+      color: var(--ink);
+      background: radial-gradient(circle at top left, rgba(242, 185, 74, 0.18), transparent 50%),
+        radial-gradient(circle at 20% 10%, rgba(240, 138, 93, 0.15), transparent 55%),
+        linear-gradient(180deg, #fdf8f3, #f4eee6 50%, #f6f1ea 100%);
       min-height: 100vh;
-      line-height: 1.6;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(120deg, rgba(31, 138, 112, 0.08), transparent 40%),
+        radial-gradient(circle at 80% 20%, rgba(31, 125, 189, 0.1), transparent 60%);
+      pointer-events: none;
+      z-index: -1;
     }
 
     .container {
-      max-width: 1400px;
+      max-width: 1280px;
       margin: 0 auto;
-      padding: 20px;
+      padding: 32px 24px 48px;
     }
 
-    header {
-      text-align: center;
-      padding: 40px 20px;
-      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(6, 182, 212, 0.1));
-      border-radius: 20px;
-      border: 1px solid var(--border-color);
-      margin-bottom: 30px;
-      backdrop-filter: blur(10px);
-    }
-
-    h1 {
-      font-size: 2.5rem;
-      font-weight: 700;
-      background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-bottom: 10px;
-    }
-
-    .subtitle {
-      color: var(--text-secondary);
-      font-size: 1.1rem;
-    }
-
-    .main-grid {
+    header.hero {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 28px 32px;
       display: grid;
-      grid-template-columns: 380px 1fr;
+      grid-template-columns: 1.1fr 0.9fr;
       gap: 24px;
-      margin-bottom: 30px;
+      box-shadow: 0 20px 40px var(--panel-shadow);
+      position: relative;
+      overflow: hidden;
+      animation: rise 0.6s ease-out;
     }
 
-    @media (max-width: 1024px) {
-      .main-grid {
-        grid-template-columns: 1fr;
-      }
+    header.hero::before {
+      content: "";
+      position: absolute;
+      width: 240px;
+      height: 240px;
+      right: -60px;
+      top: -80px;
+      background: radial-gradient(circle, rgba(31, 138, 112, 0.2), transparent 70%);
+      border-radius: 50%;
+      z-index: 0;
     }
 
-    .panel {
-      background: var(--bg-secondary);
-      border-radius: 16px;
-      padding: 24px;
-      border: 1px solid var(--border-color);
-      box-shadow: 0 4px 6px var(--shadow);
+    .hero h1 {
+      font-family: var(--heading);
+      font-size: 2.4rem;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+      position: relative;
+      z-index: 1;
     }
 
-    .panel-title {
-      font-size: 1.25rem;
-      font-weight: 600;
-      margin-bottom: 20px;
+    .hero p {
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.6;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-meta {
       display: flex;
+      flex-direction: column;
+      gap: 16px;
+      align-items: flex-end;
+      justify-content: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .status-indicator {
+      display: inline-flex;
       align-items: center;
       gap: 10px;
-      color: var(--accent-cyan);
-    }
-
-    .form-group {
-      margin-bottom: 18px;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 500;
-      color: var(--text-secondary);
+      padding: 10px 18px;
+      border-radius: 999px;
       font-size: 0.9rem;
+      font-weight: 600;
+      background: rgba(95, 107, 122, 0.12);
+      color: var(--muted);
     }
 
-    input, select {
-      width: 100%;
-      padding: 12px 14px;
-      background: var(--bg-tertiary);
-      border: 1px solid var(--border-color);
-      border-radius: 10px;
-      color: var(--text-primary);
-      font-family: inherit;
-      font-size: 0.95rem;
-      transition: all 0.2s ease;
+    .status-indicator .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: currentColor;
+      animation: pulse 1.8s ease-in-out infinite;
     }
 
-    input:focus, select:focus {
-      outline: none;
-      border-color: var(--accent-blue);
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    .status-running {
+      background: rgba(31, 125, 189, 0.12);
+      color: var(--info);
     }
 
-    input::placeholder {
-      color: var(--text-secondary);
-      opacity: 0.7;
+    .status-completed {
+      background: rgba(25, 148, 115, 0.12);
+      color: var(--success);
     }
 
-    .btn-group {
+    .status-error,
+    .status-stopped {
+      background: rgba(217, 79, 79, 0.12);
+      color: var(--danger);
+    }
+
+    .hero-actions {
       display: flex;
       gap: 12px;
-      margin-top: 24px;
     }
 
-    button {
-      flex: 1;
-      padding: 14px 24px;
+    .btn {
       border: none;
-      border-radius: 10px;
-      font-family: inherit;
-      font-size: 1rem;
+      border-radius: 12px;
+      padding: 12px 18px;
       font-weight: 600;
+      font-size: 0.95rem;
       cursor: pointer;
-      transition: all 0.3s ease;
-      display: flex;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
     }
 
     .btn-primary {
-      background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
-      color: white;
-      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+      background: linear-gradient(120deg, var(--accent), var(--accent-strong));
+      color: #fff;
+      box-shadow: 0 12px 25px rgba(31, 138, 112, 0.2);
     }
 
     .btn-primary:hover:not(:disabled) {
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
+      box-shadow: 0 18px 30px rgba(31, 138, 112, 0.25);
+    }
+
+    .btn-outline {
+      background: #fff;
+      border: 1px solid var(--border);
+      color: var(--ink);
+    }
+
+    .btn-outline:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 22px rgba(16, 24, 40, 0.08);
     }
 
     .btn-danger {
-      background: linear-gradient(135deg, var(--accent-red), #dc2626);
-      color: white;
+      background: linear-gradient(120deg, #d94f4f, #c53939);
+      color: #fff;
+      box-shadow: 0 12px 25px rgba(217, 79, 79, 0.2);
     }
 
     .btn-danger:hover:not(:disabled) {
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5);
+      box-shadow: 0 18px 30px rgba(217, 79, 79, 0.25);
     }
 
     button:disabled {
-      opacity: 0.5;
+      opacity: 0.6;
       cursor: not-allowed;
-      transform: none !important;
+      transform: none;
+      box-shadow: none;
     }
 
-    .status-indicator {
-      display: inline-flex;
+    .main-grid {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 24px;
+      margin-top: 28px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      padding: 24px;
+      box-shadow: 0 14px 28px var(--panel-shadow);
+    }
+
+    .panel-title {
+      font-family: var(--heading);
+      font-size: 1.2rem;
+      margin-bottom: 18px;
+      display: flex;
+      justify-content: space-between;
       align-items: center;
       gap: 8px;
-      padding: 8px 16px;
-      border-radius: 999px;
+    }
+
+    .field {
+      margin-bottom: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    label {
       font-size: 0.85rem;
       font-weight: 600;
-      margin-top: 16px;
+      color: var(--muted);
     }
 
-    .status-idle {
-      background: rgba(148, 163, 184, 0.2);
-      color: var(--text-secondary);
+    input,
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-family: var(--body);
+      font-size: 0.95rem;
+      background: #fff;
+      color: var(--ink);
+      transition: border 0.2s ease, box-shadow 0.2s ease;
     }
 
-    .status-running {
-      background: rgba(59, 130, 246, 0.2);
-      color: var(--accent-blue);
-      animation: pulse 2s infinite;
+    textarea {
+      min-height: 80px;
+      resize: vertical;
     }
 
-    .status-completed {
-      background: rgba(16, 185, 129, 0.2);
-      color: var(--accent-green);
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(31, 138, 112, 0.15);
     }
 
-    .status-error {
-      background: rgba(239, 68, 68, 0.2);
-      color: var(--accent-red);
+    .input-error {
+      border-color: var(--danger);
+      box-shadow: 0 0 0 3px rgba(217, 79, 79, 0.15);
+    }
+
+    .hint {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .action-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    details.advanced {
+      margin-top: 12px;
+      border: 1px dashed var(--border);
+      border-radius: 16px;
+      padding: 12px 14px 6px;
+      background: var(--bg-soft);
+    }
+
+    details.advanced summary {
+      list-style: none;
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--accent-strong);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    details.advanced summary::-webkit-details-marker {
+      display: none;
+    }
+
+    details.advanced[open] {
+      box-shadow: inset 0 0 0 1px rgba(31, 138, 112, 0.15);
+    }
+
+    .log-container {
+      background: #0f1b22;
+      color: #f8fafc;
+      border-radius: 16px;
+      padding: 16px;
+      height: 420px;
+      overflow-y: auto;
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      border: 1px solid #0f2430;
+    }
+
+    .log-entry {
+      display: grid;
+      grid-template-columns: 76px 1fr;
+      gap: 12px;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+      animation: slideIn 0.25s ease;
+    }
+
+    .log-time {
+      color: #94a3b8;
+      font-size: 0.75rem;
+    }
+
+    .log-message {
+      word-break: break-word;
+      color: #e2e8f0;
+    }
+
+    .log-info { color: #7dd3fc; }
+    .log-error { color: #fca5a5; }
+    .log-success { color: #86efac; }
+
+    .results-panel {
+      margin-top: 28px;
+    }
+
+    .dataset-panel {
+      margin-top: 28px;
+    }
+
+    .dataset-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn-small {
+      padding: 8px 12px;
+      font-size: 0.85rem;
+      border-radius: 10px;
+    }
+
+    .dataset-table td:first-child {
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      word-break: break-all;
+    }
+
+    .results-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .results-header p {
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .filters {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .filters input {
+      min-width: 220px;
+    }
+
+    .tabs {
+      display: inline-flex;
+      gap: 10px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px;
+      background: #fff;
+    }
+
+    .tab-btn {
+      border: none;
+      background: transparent;
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .tab-btn.active {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin: 20px 0;
+    }
+
+    .stat-card {
+      background: var(--bg-soft);
+      border-radius: 16px;
+      padding: 18px;
+      border: 1px solid var(--border);
+    }
+
+    .stat-value {
+      font-family: var(--heading);
+      font-size: 1.6rem;
+      color: var(--accent-strong);
+    }
+
+    .stat-label {
+      color: var(--muted);
+      margin-top: 4px;
+      font-size: 0.85rem;
+    }
+
+    .table-container {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+
+    thead {
+      background: #f5efe6;
+      color: var(--muted);
+    }
+
+    th,
+    td {
+      padding: 12px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    tbody tr:hover {
+      background: rgba(31, 138, 112, 0.08);
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
+
+    .tag-link { background: rgba(31, 125, 189, 0.16); color: #1f7dbd; }
+    .tag-button { background: rgba(240, 138, 93, 0.18); color: #cc5f33; }
+    .tag-form { background: rgba(25, 148, 115, 0.18); color: var(--accent-strong); }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--muted);
+    }
+
+    footer {
+      margin-top: 32px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    @media (max-width: 1080px) {
+      header.hero {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-meta {
+        align-items: flex-start;
+      }
+
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .action-row {
+        grid-template-columns: 1fr;
+      }
+
+      .log-container {
+        height: 320px;
+      }
     }
 
     @keyframes pulse {
@@ -219,301 +535,151 @@
       50% { opacity: 0.6; }
     }
 
-    .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: currentColor;
-    }
-
-    .log-container {
-      height: 400px;
-      overflow-y: auto;
-      background: var(--bg-primary);
-      border-radius: 12px;
-      padding: 16px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.85rem;
-      border: 1px solid var(--border-color);
-    }
-
-    .log-entry {
-      padding: 6px 0;
-      border-bottom: 1px solid rgba(71, 85, 105, 0.3);
-      display: flex;
-      gap: 12px;
-      animation: slideIn 0.3s ease;
-    }
-
     @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateX(-10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateX(0);
-      }
+      from { opacity: 0; transform: translateX(-10px); }
+      to { opacity: 1; transform: translateX(0); }
     }
 
-    .log-time {
-      color: var(--text-secondary);
-      font-size: 0.75rem;
-      white-space: nowrap;
-    }
-
-    .log-message {
-      color: var(--text-primary);
-      word-break: break-word;
-    }
-
-    .log-info { color: var(--accent-cyan); }
-    .log-error { color: var(--accent-red); }
-    .log-success { color: var(--accent-green); }
-
-    .results-section {
-      margin-top: 30px;
-    }
-
-    .tabs {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 20px;
-      border-bottom: 2px solid var(--border-color);
-      padding-bottom: 12px;
-    }
-
-    .tab-btn {
-      background: transparent;
-      border: none;
-      color: var(--text-secondary);
-      padding: 10px 20px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 500;
-      transition: all 0.2s ease;
-    }
-
-    .tab-btn.active {
-      background: var(--accent-blue);
-      color: white;
-    }
-
-    .tab-btn:hover:not(.active) {
-      background: var(--bg-tertiary);
-      color: var(--text-primary);
-    }
-
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-
-    .stat-card {
-      background: var(--bg-tertiary);
-      padding: 20px;
-      border-radius: 12px;
-      border: 1px solid var(--border-color);
-      text-align: center;
-    }
-
-    .stat-value {
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--accent-cyan);
-      font-family: 'JetBrains Mono', monospace;
-    }
-
-    .stat-label {
-      color: var(--text-secondary);
-      font-size: 0.9rem;
-      margin-top: 8px;
-    }
-
-    .table-container {
-      overflow-x: auto;
-      border-radius: 12px;
-      border: 1px solid var(--border-color);
-      background: var(--bg-tertiary);
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.9rem;
-    }
-
-    thead {
-      background: var(--bg-secondary);
-    }
-
-    th {
-      padding: 14px 16px;
-      text-align: left;
-      font-weight: 600;
-      color: var(--accent-cyan);
-      border-bottom: 2px solid var(--border-color);
-      text-transform: uppercase;
-      font-size: 0.8rem;
-      letter-spacing: 0.05em;
-    }
-
-    td {
-      padding: 14px 16px;
-      border-bottom: 1px solid var(--border-color);
-      color: var(--text-primary);
-    }
-
-    tbody tr:hover {
-      background: rgba(59, 130, 246, 0.1);
-      cursor: pointer;
-      transition: background 0.2s ease;
-    }
-
-    .tag {
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-    }
-
-    .tag-link { background: rgba(59, 130, 246, 0.2); color: var(--accent-blue); }
-    .tag-button { background: rgba(249, 115, 22, 0.2); color: var(--accent-orange); }
-    .tag-form { background: rgba(16, 185, 129, 0.2); color: var(--accent-green); }
-
-    .empty-state {
-      text-align: center;
-      padding: 60px 20px;
-      color: var(--text-secondary);
-    }
-
-    .empty-icon {
-      font-size: 4rem;
-      margin-bottom: 16px;
-      opacity: 0.5;
-    }
-
-    ::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
-    }
-
-    ::-webkit-scrollbar-track {
-      background: var(--bg-primary);
-      border-radius: 4px;
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: var(--bg-tertiary);
-      border-radius: 4px;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-      background: var(--border-color);
-    }
-
-    footer {
-      text-align: center;
-      padding: 30px;
-      color: var(--text-secondary);
-      font-size: 0.9rem;
-      margin-top: 40px;
-      border-top: 1px solid var(--border-color);
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <header>
-      <h1>🌐 Web 智能功能导航系统</h1>
-      <p class="subtitle">智能爬取 · 自动发现 · 可视化分析</p>
-    </header>
-
-    <div class="main-grid">
-      <div class="panel">
-        <h2 class="panel-title">⚙️ 爬虫配置</h2>
-
-        <div class="form-group">
-          <label for="url">目标网址</label>
-          <input type="url" id="url" placeholder="https://example.com" value="https://crawlee.dev" />
-        </div>
-
-        <div class="form-group">
-          <label for="maxRequests">最大请求数</label>
-          <input type="number" id="maxRequests" value="100" min="1" max="10000" />
-        </div>
-
-        <div class="form-group">
-          <label for="maxConcurrency">并发数</label>
-          <input type="number" id="maxConcurrency" value="1" min="1" max="10" />
-        </div>
-
-        <div class="form-group">
-          <label for="navigationTimeout">导航超时 (秒)</label>
-          <input type="number" id="navigationTimeout" value="45" min="10" max="300" />
-        </div>
-
-        <div class="form-group">
-          <label for="requestHandlerTimeout">请求超时 (秒)</label>
-          <input type="number" id="requestHandlerTimeout" value="180" min="30" max="600" />
-        </div>
-
-        <div class="form-group">
-          <label for="browserChannel">浏览器通道</label>
-          <select id="browserChannel">
-            <option value="">默认 (Chromium)</option>
-            <option value="chrome">Chrome</option>
-            <option value="msedge">Microsoft Edge</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="databasePath">数据库文件</label>
-          <input type="text" id="databasePath" value="../database/sitemap.json" placeholder="../database/sitemap.json" />
-        </div>
-
-        <div class="btn-group">
-          <button class="btn-primary" id="startBtn" onclick="startCrawl()">
-            ▶ 开始爬取
-          </button>
-          <button class="btn-danger" id="stopBtn" onclick="stopCrawl()" disabled>
-            ⏹ 停止
-          </button>
-        </div>
-
+    <header class="hero">
+      <div>
+        <h1>Web 智能功能导航控制台</h1>
+        <p>统一配置、实时日志与结果洞察，帮助你快速发现站点功能入口。</p>
+      </div>
+      <div class="hero-meta">
         <div class="status-indicator status-idle" id="statusIndicator">
           <span class="dot"></span>
           <span id="statusText">就绪</span>
         </div>
+        <div class="hero-actions">
+          <button class="btn btn-outline" onclick="scrollToResults()">查看结果</button>
+          <button class="btn btn-outline" onclick="openReportLatest()">打开报告</button>
+          <button class="btn btn-outline" onclick="downloadResults()">下载 JSON</button>
+        </div>
       </div>
+    </header>
 
-      <div class="panel">
-        <h2 class="panel-title">📋 实时日志</h2>
+    <main class="main-grid">
+      <section class="panel">
+        <h2 class="panel-title">基础配置</h2>
+        <div class="field">
+          <label for="url">目标网址</label>
+          <input type="url" id="url" placeholder="https://example.com" value="https://crawlee.dev" />
+          <span class="hint">只需填写 URL，其他参数可在高级配置中调整。</span>
+        </div>
+
+        <div class="action-row">
+          <button class="btn btn-primary" id="startBtn" onclick="startCrawl()">开始爬取</button>
+          <button class="btn btn-danger" id="stopBtn" onclick="stopCrawl()" disabled>停止</button>
+        </div>
+
+        <details class="advanced" id="advancedSettings">
+          <summary>高级配置</summary>
+          <div class="field">
+            <label for="maxRequests">最大请求数</label>
+            <input type="number" id="maxRequests" value="100" min="1" max="10000" />
+          </div>
+          <div class="field">
+            <label for="maxConcurrency">并发数</label>
+            <input type="number" id="maxConcurrency" value="1" min="1" max="10" />
+          </div>
+          <div class="field">
+            <label for="navigationTimeout">导航超时 (秒)</label>
+            <input type="number" id="navigationTimeout" value="60" min="10" max="300" />
+          </div>
+          <div class="field">
+            <label for="requestHandlerTimeout">请求超时 (秒)</label>
+            <input type="number" id="requestHandlerTimeout" value="240" min="30" max="600" />
+          </div>
+          <div class="field">
+            <label for="maxRetries">最大重试次数</label>
+            <input type="number" id="maxRetries" value="1" min="0" max="5" />
+          </div>
+          <div class="field">
+            <label for="browserChannel">浏览器通道</label>
+            <select id="browserChannel">
+              <option value="">默认 (Chromium)</option>
+              <option value="chrome">Chrome</option>
+              <option value="msedge">Microsoft Edge</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="blockedResources">阻断资源类型</label>
+            <input type="text" id="blockedResources" value="image,font,media" />
+            <span class="hint">用逗号分隔，例如 image,font,media</span>
+          </div>
+          <div class="field">
+            <label for="sensitiveWords">敏感词（跳过危险点击）</label>
+            <textarea id="sensitiveWords">delete,remove,pay,submit,confirm,logout,reset,clear,删除,注销,支付,清空,重置</textarea>
+          </div>
+          <div class="field">
+            <label for="outputName">输出文件名</label>
+            <input type="text" id="outputName" placeholder="sitemap-2026-05-05.json" />
+            <span class="hint">留空则自动生成文件名。</span>
+          </div>
+        </details>
+      </section>
+
+      <section class="panel">
+        <h2 class="panel-title">实时日志</h2>
         <div class="log-container" id="logContainer">
           <div class="log-entry log-info">
             <span class="log-time">--:--:--</span>
             <span class="log-message">系统就绪，等待开始爬取...</span>
           </div>
         </div>
+      </section>
+    </main>
+
+    <section class="panel dataset-panel" id="datasetSection">
+      <div class="panel-title">
+        <span>数据库爬取索引</span>
+        <div class="dataset-actions">
+          <button class="btn btn-outline btn-small" onclick="openReportLatest()">打开最新报告</button>
+          <button class="btn btn-outline btn-small" onclick="loadDatasetIndex()">刷新列表</button>
+        </div>
       </div>
-    </div>
-
-    <div class="results-section panel" id="resultsSection" style="display: none;">
-      <h2 class="panel-title">📊 爬取结果</h2>
-
-      <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('overview')">概览</button>
-        <button class="tab-btn" onclick="switchTab('pages')">页面列表</button>
-        <button class="tab-btn" onclick="switchTab('elements')">元素详情</button>
+      <p class="hint">扫描 database 目录下的 JSON 结果文件。</p>
+      <div class="table-container">
+        <table class="dataset-table">
+          <thead>
+            <tr>
+              <th>文件名</th>
+              <th>更新时间</th>
+              <th>大小</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="datasetTableBody">
+            <tr><td colspan="4" class="empty-state">正在加载...</td></tr>
+          </tbody>
+        </table>
       </div>
+    </section>
 
-      <div class="control" style="margin: 18px 0 8px;">
-        <button id="downloadResultsBtn" class="secondary" disabled onclick="downloadResults()">下载结果 JSON</button>
-        <span class="subtle" id="downloadHint">完成一次爬取后可直接下载当前结果。</span>
+    <section class="panel results-panel" id="resultsSection" style="display: none;">
+      <div class="results-header">
+        <div>
+          <h2 class="panel-title">爬取结果</h2>
+          <p>查看概览、页面列表与元素详情，支持过滤与导出。</p>
+        </div>
+        <div class="filters">
+          <input type="text" id="pageFilter" placeholder="筛选页面标题或 URL" />
+          <input type="text" id="elementFilter" placeholder="筛选元素文本或链接" />
+          <button class="btn btn-outline" onclick="downloadResults()">下载 JSON</button>
+        </div>
+        <div class="tabs">
+          <button class="tab-btn active" onclick="switchTab(event, 'overview')">概览</button>
+          <button class="tab-btn" onclick="switchTab(event, 'pages')">页面列表</button>
+          <button class="tab-btn" onclick="switchTab(event, 'elements')">元素详情</button>
+        </div>
       </div>
 
       <div id="overviewTab">
@@ -552,11 +718,9 @@
           </table>
         </div>
       </div>
-    </div>
+    </section>
 
-    <footer>
-      <p>Web Intelligent Function Navigation System v2.0 | Powered by Crawlee + Playwright</p>
-    </footer>
+    <footer>Web Intelligent Function Navigation System · Crawlee + Playwright</footer>
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
@@ -590,7 +754,6 @@
       socket.on("crawl:complete", (data) => {
         crawlResults = data.results;
         showResults(crawlResults);
-        updateDownloadState();
         addLog("success", `爬取完成! 共发现 ${crawlResults.pages.length} 个页面`);
       });
 
@@ -607,10 +770,12 @@
 
       const time = document.createElement("span");
       time.className = "log-time";
-      time.textContent = timestamp ? new Date(timestamp).toLocaleTimeString() : new Date().toLocaleTimeString();
+      time.textContent = timestamp
+        ? new Date(timestamp).toLocaleTimeString()
+        : new Date().toLocaleTimeString();
 
       const msg = document.createElement("span");
-      msg.className = `log-message log-${type}`;
+      msg.className = "log-message";
       msg.textContent = message;
 
       entry.appendChild(time);
@@ -636,7 +801,7 @@
         case "running":
         case "started":
           indicator.classList.add("status-running");
-          text.textContent = "正在爬取...";
+          text.textContent = "正在爬取";
           startBtn.disabled = true;
           stopBtn.disabled = false;
           break;
@@ -647,14 +812,15 @@
           stopBtn.disabled = true;
           break;
         case "stopped":
-          indicator.classList.add("status-error");
+          indicator.classList.add("status-stopped");
           text.textContent = "已停止";
           startBtn.disabled = false;
           stopBtn.disabled = true;
           break;
         case "error":
+        case "failed":
           indicator.classList.add("status-error");
-          text.textContent = "错误";
+          text.textContent = "发生错误";
           startBtn.disabled = false;
           stopBtn.disabled = true;
           break;
@@ -664,14 +830,6 @@
           startBtn.disabled = false;
           stopBtn.disabled = true;
       }
-
-      updateDownloadState();
-    }
-
-    function updateDownloadState() {
-      const downloadBtn = document.getElementById("downloadResultsBtn");
-      if (!downloadBtn) return;
-      downloadBtn.disabled = !crawlResults;
     }
 
     async function checkStatus() {
@@ -694,20 +852,33 @@
     }
 
     async function startCrawl() {
+      const urlInput = document.getElementById("url");
+      const urlValue = urlInput.value.trim();
+
+      if (!urlValue) {
+        urlInput.classList.add("input-error");
+        addLog("error", "请输入目标网址");
+        return;
+      }
+
+      urlInput.classList.remove("input-error");
+
+      const outputName = document.getElementById("outputName").value.trim();
+
       const config = {
-        url: document.getElementById("url").value,
-        maxRequests: parseInt(document.getElementById("maxRequests").value),
-        maxConcurrency: parseInt(document.getElementById("maxConcurrency").value),
-        navigationTimeout: parseInt(document.getElementById("navigationTimeout").value),
-        requestHandlerTimeout: parseInt(document.getElementById("requestHandlerTimeout").value),
+        url: urlValue,
+        maxRequests: parseInt(document.getElementById("maxRequests").value, 10),
+        maxConcurrency: parseInt(document.getElementById("maxConcurrency").value, 10),
+        navigationTimeout: parseInt(document.getElementById("navigationTimeout").value, 10),
+        requestHandlerTimeout: parseInt(document.getElementById("requestHandlerTimeout").value, 10),
+        maxRetries: parseInt(document.getElementById("maxRetries").value, 10),
         browserChannel: document.getElementById("browserChannel").value,
-        databasePath: document.getElementById("databasePath").value,
-        outputPath: `sitemap-${Date.now()}.json`
+        blockedResources: document.getElementById("blockedResources").value.trim(),
+        sensitiveWords: document.getElementById("sensitiveWords").value.trim()
       };
 
-      if (!config.url) {
-        alert("请输入目标网址");
-        return;
+      if (outputName) {
+        config.outputPath = outputName;
       }
 
       try {
@@ -754,36 +925,6 @@
       renderElementsTable(results.pages);
     }
 
-    async function downloadResults() {
-      if (!crawlResults) {
-        addLog("error", "暂无可下载的结果");
-        return;
-      }
-
-      try {
-        const response = await fetch("/api/results/download");
-        if (!response.ok) {
-          throw new Error("下载失败");
-        }
-
-        const blob = await response.blob();
-        const disposition = response.headers.get("content-disposition") || "";
-        const fileMatch = disposition.match(/filename="?([^";]+)"?/i);
-        const fileName = fileMatch?.[1] || `crawl-results-${Date.now()}.json`;
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = fileName;
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        window.URL.revokeObjectURL(url);
-        addLog("success", "结果已开始下载");
-      } catch (error) {
-        addLog("error", error.message);
-      }
-    }
-
     function renderStats(results) {
       const grid = document.getElementById("statsGrid");
 
@@ -791,10 +932,10 @@
       const hrefSet = new Set();
       const domains = new Set();
 
-      results.pages.forEach(page => {
+      results.pages.forEach((page) => {
         const elements = page.elements || [];
         totalElements += elements.length;
-        elements.forEach(el => {
+        elements.forEach((el) => {
           if (el.href) hrefSet.add(el.href);
         });
         try {
@@ -812,33 +953,57 @@
         { label: "平均元素/页", value: (totalElements / results.pages.length || 0).toFixed(1) }
       ];
 
-      grid.innerHTML = stats.map(stat => `
+      grid.innerHTML = stats
+        .map(
+          (stat) => `
         <div class="stat-card">
           <div class="stat-value">${stat.value}</div>
           <div class="stat-label">${stat.label}</div>
         </div>
-      `).join("");
+      `
+        )
+        .join("");
     }
 
     function renderPagesTable(pages) {
       const tbody = document.getElementById("pagesTableBody");
+      const filter = document.getElementById("pageFilter").value.trim().toLowerCase();
 
-      tbody.innerHTML = pages.map((page, idx) => `
-        <tr onclick="showPageElements(${idx})">
+      const filteredPages = pages.filter((page) => {
+        if (!filter) return true;
+        const title = (page.title || "").toLowerCase();
+        const url = (page.url || "").toLowerCase();
+        return title.includes(filter) || url.includes(filter);
+      });
+
+      if (filteredPages.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="empty-state">暂无匹配页面</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filteredPages
+        .map((page) => {
+          const links = new Set((page.elements || []).filter((el) => el.href).map((el) => el.href));
+          return `
+        <tr>
           <td>${page.title || "(无标题)"}</td>
-          <td style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;">${page.url}</td>
+          <td style="font-family: var(--mono); font-size: 0.82rem;">${page.url}</td>
           <td><strong>${(page.elements || []).length}</strong></td>
-          <td>${new Set((page.elements || []).filter(el => el.href).map(el => el.href)).size}</td>
+          <td>${links.size}</td>
         </tr>
-      `).join("");
+      `;
+        })
+        .join("");
     }
 
     function renderElementsTable(pages) {
       const tbody = document.getElementById("elementsTableBody");
+      const filter = document.getElementById("elementFilter").value.trim().toLowerCase();
+
       let allElements = [];
 
-      pages.forEach((page, pageIdx) => {
-        (page.elements || []).forEach((el, elIdx) => {
+      pages.forEach((page) => {
+        (page.elements || []).forEach((el) => {
           allElements.push({
             ...el,
             _pageTitle: page.title,
@@ -847,32 +1012,37 @@
         });
       });
 
+      if (filter) {
+        allElements = allElements.filter((el) => {
+          const hay = `${el.text || ""} ${el.href || ""} ${el.selector || ""}`.toLowerCase();
+          return hay.includes(filter);
+        });
+      }
+
       if (allElements.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--text-secondary);">暂无数据</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" class="empty-state">暂无数据</td></tr>`;
         return;
       }
 
-      tbody.innerHTML = allElements.slice(0, 200).map(el => `
+      tbody.innerHTML = allElements.slice(0, 200).map((el) => `
         <tr>
           <td><span class="tag tag-${el.type}">${el.type}</span></td>
           <td>${el.text || "-"}</td>
-          <td style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; word-break: break-all;">
-            ${el.href ? `<a href="${el.href}" target="_blank" rel="noopener" style="color:var(--accent-cyan);">${el.href}</a>` : "-"}
+          <td style="font-family: var(--mono); font-size: 0.78rem; word-break: break-all;">
+            ${el.href ? `<a href="${el.href}" target="_blank" rel="noopener" style="color: var(--accent-strong);">${el.href}</a>` : "-"}
           </td>
-          <td style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">${el.selector || "-"}</td>
-          <td style="color:var(--text-secondary);font-size:0.85rem;">${el.context || "-"}</td>
+          <td style="font-family: var(--mono); font-size: 0.78rem;">${el.selector || "-"}</td>
+          <td style="color: var(--muted); font-size: 0.82rem;">${el.context || "-"}</td>
         </tr>
       `).join("");
 
       if (allElements.length > 200) {
-        tbody.innerHTML += `<tr><td colspan="5" style="text-align:center;color:var(--text-secondary);padding:20px;">
-          显示前 200 条记录，共 ${allElements.length} 条
-        </td></tr>`;
+        tbody.innerHTML += `<tr><td colspan="5" class="empty-state">显示前 200 条记录，共 ${allElements.length} 条</td></tr>`;
       }
     }
 
-    function switchTab(tabName) {
-      document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
+    function switchTab(event, tabName) {
+      document.querySelectorAll(".tab-btn").forEach((btn) => btn.classList.remove("active"));
       event.target.classList.add("active");
 
       document.getElementById("overviewTab").style.display = tabName === "overview" ? "block" : "none";
@@ -880,16 +1050,105 @@
       document.getElementById("elementsTab").style.display = tabName === "elements" ? "block" : "none";
     }
 
-    function showPageElements(pageIdx) {
-      switchTab('pages');
-      if (crawlResults && crawlResults.pages[pageIdx]) {
-        const page = crawlResults.pages[pageIdx];
-        addLog("info", `查看页面: ${page.title || page.url}`);
+    function setupFilters() {
+      document.getElementById("pageFilter").addEventListener("input", () => {
+        if (crawlResults) {
+          renderPagesTable(crawlResults.pages);
+        }
+      });
+
+      document.getElementById("elementFilter").addEventListener("input", () => {
+        if (crawlResults) {
+          renderElementsTable(crawlResults.pages);
+        }
+      });
+    }
+
+    function downloadResults() {
+      if (!crawlResults) {
+        addLog("error", "暂无可下载的结果");
+        return;
       }
+      window.open("/api/results/download", "_blank");
+    }
+
+    function openReportLatest() {
+      window.open("/crawl-report.html?source=latest", "_blank");
+    }
+
+    function openReportForFile(fileName) {
+      const target = `/crawl-report.html?file=${encodeURIComponent(fileName)}`;
+      window.open(target, "_blank");
+    }
+
+    function formatBytes(bytes) {
+      if (!Number.isFinite(bytes)) return "-";
+      const units = ["B", "KB", "MB", "GB"];
+      let size = bytes;
+      let idx = 0;
+      while (size >= 1024 && idx < units.length - 1) {
+        size /= 1024;
+        idx += 1;
+      }
+      return `${size.toFixed(size < 10 && idx > 0 ? 1 : 0)} ${units[idx]}`;
+    }
+
+    function formatTimestamp(value) {
+      if (!value) return "-";
+      try {
+        return new Date(value).toLocaleString();
+      } catch {
+        return "-";
+      }
+    }
+
+    async function loadDatasetIndex() {
+      const tbody = document.getElementById("datasetTableBody");
+      tbody.innerHTML = `<tr><td colspan="4" class="empty-state">正在加载...</td></tr>`;
+
+      try {
+        const response = await fetch("/api/datasets", { cache: "no-store" });
+        if (!response.ok) {
+          throw new Error("无法读取数据库索引");
+        }
+        const data = await response.json();
+        const items = Array.isArray(data.files) ? data.files : [];
+
+        if (items.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="4" class="empty-state">database 目录暂无结果文件</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = items
+          .map((item) => `
+            <tr>
+              <td>${item.name}</td>
+              <td>${formatTimestamp(item.updatedAt)}</td>
+              <td>${formatBytes(item.size)}</td>
+              <td>
+                <button class="btn btn-outline btn-small" onclick='openReportForFile(${JSON.stringify(item.name)})'>查看报告</button>
+              </td>
+            </tr>
+          `)
+          .join("");
+      } catch (error) {
+        tbody.innerHTML = `<tr><td colspan="4" class="empty-state">${error.message}</td></tr>`;
+      }
+    }
+
+    function scrollToResults() {
+      const section = document.getElementById("resultsSection");
+      if (!section || section.style.display === "none") {
+        addLog("info", "暂无结果可查看，请先开始一次爬取。");
+        return;
+      }
+      section.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
     document.addEventListener("DOMContentLoaded", () => {
       connectSocket();
+      setupFilters();
+      loadDatasetIndex();
     });
   </script>
 </body>

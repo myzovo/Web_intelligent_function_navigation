@@ -1,9 +1,0 @@
-{
-	"id": "itCzRbzgchRqFqd",
-	"json": "{\"id\":\"itCzRbzgchRqFqd\",\"url\":\"http://www.baidu.com/more/\",\"loadedUrl\":\"https://www.baidu.com/more/\",\"uniqueKey\":\"http://www.baidu.com/more\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"__crawlee\":{\"crawlDepth\":1,\"enqueueStrategy\":\"same-hostname\",\"state\":4}},\"handledAt\":\"2026-04-29T00:14:28.696Z\"}",
-	"method": "GET",
-	"orderNo": null,
-	"retryCount": 0,
-	"uniqueKey": "http://www.baidu.com/more",
-	"url": "http://www.baidu.com/more/"
-}

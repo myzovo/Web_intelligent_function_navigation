@@ -1,9 +1,0 @@
-{
-	"id": "rnyIvQtw0sDuPPE",
-	"json": "{\"id\":\"rnyIvQtw0sDuPPE\",\"url\":\"https://www.baidu.com/duty\",\"loadedUrl\":\"https://www.baidu.com/duty/\",\"uniqueKey\":\"https://www.baidu.com/duty\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"__crawlee\":{\"crawlDepth\":1,\"enqueueStrategy\":\"same-hostname\",\"state\":4}},\"handledAt\":\"2026-04-29T00:14:58.576Z\"}",
-	"method": "GET",
-	"orderNo": null,
-	"retryCount": 0,
-	"uniqueKey": "https://www.baidu.com/duty",
-	"url": "https://www.baidu.com/duty"
-}

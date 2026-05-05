@@ -2,12 +2,17 @@ import express from "express";
 import { createServer } from "http";
 import { Server as SocketIOServer } from "socket.io";
 import { fileURLToPath } from "url";
-import { dirname, join, resolve, sep } from "path";
-import { exec } from "child_process";
+import { dirname, join, basename, extname } from "path";
+import { spawn } from "child_process";
 import fs from "fs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+
+const outputsDir = join(__dirname, "outputs");
+fs.mkdirSync(outputsDir, { recursive: true });
+const databaseDir = join(__dirname, "database");
+fs.mkdirSync(databaseDir, { recursive: true });
 
 const app = express();
 const httpServer = createServer(app);
@@ -26,66 +31,105 @@ let isCrawling = false;
 let crawlResults = null;
 let lastOutputPath = null;
 
-const databaseRoot = resolve(__dirname, "..", "database");
-
-function resolveDatabasePath(inputPath) {
-  const fallbackPath = join(databaseRoot, `sitemap-${Date.now()}.json`);
-  const rawValue = String(inputPath || "").trim();
-
-  if (!rawValue) {
-    return fallbackPath;
-  }
-
-  const normalizedValue = rawValue.replace(/\\/g, "/");
-
-  if (/^[a-zA-Z]:\//.test(normalizedValue) || normalizedValue.startsWith("/")) {
-    const absolutePath = resolve(normalizedValue);
-    return absolutePath.startsWith(databaseRoot + sep) || absolutePath === databaseRoot
-      ? absolutePath
-      : fallbackPath;
-  }
-
-  const candidatePath = resolve(databaseRoot, normalizedValue);
-  return candidatePath.startsWith(databaseRoot + sep) || candidatePath === databaseRoot
-    ? candidatePath
-    : fallbackPath;
-}
-
-app.get("/api/status", (req, res) => {
+app.get("/api/status", (_req, res) => {
   res.json({
     isCrawling,
     hasResults: !!crawlResults,
-    results: crawlResults ? {
-      startUrl: crawlResults.startUrl,
-      totalPages: crawlResults.totalPages,
-      pagesCount: crawlResults.pages?.length || 0
-    } : null
+    outputPath: lastOutputPath ? basename(lastOutputPath) : null,
+    results: crawlResults
+      ? {
+          startUrl: crawlResults.startUrl,
+          totalPages: crawlResults.totalPages,
+          pagesCount: crawlResults.pages?.length || 0
+        }
+      : null
   });
 });
 
-app.get("/api/results", (req, res) => {
+app.get("/api/results", (_req, res) => {
   if (!crawlResults) {
     return res.status(404).json({ error: "No results available" });
   }
   res.json(crawlResults);
 });
 
-app.get("/api/results/download", (req, res) => {
-  const resultPath = lastOutputPath ? join(__dirname, lastOutputPath) : null;
+app.get("/api/datasets", (_req, res) => {
+  try {
+    const files = buildDatabaseIndex();
+    res.setHeader("Cache-Control", "no-store");
+    res.json({ files });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to read database directory" });
+  }
+});
+
+app.get("/api/datasets/:name", (req, res) => {
+  const filePath = resolveDatasetPath(req.params.name);
+  if (!filePath) {
+    return res.status(400).json({ error: "Invalid dataset name" });
+  }
+
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).json({ error: "Dataset not found" });
+  }
+
+  try {
+    const rawData = fs.readFileSync(filePath, "utf-8");
+    res.setHeader("Cache-Control", "no-store");
+    res.type("application/json").send(rawData);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to read dataset file" });
+  }
+});
+
+app.get("/api/datasets", (_req, res) => {
+  try {
+    const items = listDatabaseFiles();
+    res.json({ items });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to list datasets" });
+  }
+});
+
+app.get("/api/datasets/:name", (req, res) => {
+  const raw = req.params.name || "";
+  const fileName = basename(raw);
+
+  if (fileName !== raw) {
+    return res.status(400).json({ error: "Invalid file name" });
+  }
+
+  if (extname(fileName).toLowerCase() !== ".json") {
+    return res.status(400).json({ error: "Only .json files are supported" });
+  }
+
+  const filePath = join(databaseDir, fileName);
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).json({ error: "Dataset not found" });
+  }
+
+  try {
+    const payload = fs.readFileSync(filePath, "utf-8");
+    res.type("application/json").send(payload);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to read dataset" });
+  }
+});
+
+app.get("/api/results/download", (_req, res) => {
+  if (lastOutputPath && fs.existsSync(lastOutputPath)) {
+    return res.download(lastOutputPath, basename(lastOutputPath));
+  }
 
   if (crawlResults) {
-    const fileName = lastOutputPath || `crawl-results-${Date.now()}.json`;
-    return res
+    res
       .type("application/json")
-      .setHeader("Content-Disposition", `attachment; filename="${fileName}"`)
+      .setHeader("Content-Disposition", "attachment; filename=results.json")
       .send(JSON.stringify(crawlResults, null, 2));
+    return;
   }
 
-  if (resultPath && fs.existsSync(resultPath)) {
-    return res.download(resultPath);
-  }
-
-  return res.status(404).json({ error: "No results available for download" });
+  res.status(404).json({ error: "No output file available" });
 });
 
 app.post("/api/crawl/start", (req, res) => {
@@ -100,11 +144,13 @@ app.post("/api/crawl/start", (req, res) => {
   const navigationTimeout = config.navigationTimeout || 45;
   const requestHandlerTimeout = config.requestHandlerTimeout || 180;
   const maxRetries = config.maxRetries || 1;
-  const outputPath = resolveDatabasePath(config.databasePath || config.outputPath);
   const blockedResources = config.blockedResources || "image,font,media";
   const sensitiveWords =
     config.sensitiveWords || "delete,remove,pay,submit,confirm,logout,reset,clear,删除,注销,支付,清空,重置";
   const browserChannel = config.browserChannel || "";
+
+  const outputName = normalizeOutputName(config.outputPath);
+  const outputPath = join(outputsDir, outputName);
 
   isCrawling = true;
   crawlResults = null;
@@ -113,15 +159,22 @@ app.post("/api/crawl/start", (req, res) => {
   io.emit("crawl:status", { status: "started", message: "Starting crawl..." });
 
   const args = [
-    "--url", startUrl,
-    "--max-requests", String(maxRequests),
-    "--max-concurrency", String(maxConcurrency),
-    "--navigation-timeout", String(navigationTimeout),
-    "--request-handler-timeout", String(requestHandlerTimeout),
-    "--max-retries", String(maxRetries),
-    "--out", outputPath,
-    "--database-path", outputPath,
-    "--block-resources", blockedResources
+    "--url",
+    startUrl,
+    "--max-requests",
+    String(maxRequests),
+    "--max-concurrency",
+    String(maxConcurrency),
+    "--navigation-timeout",
+    String(navigationTimeout),
+    "--request-handler-timeout",
+    String(requestHandlerTimeout),
+    "--max-retries",
+    String(maxRetries),
+    "--out",
+    outputPath,
+    "--block-resources",
+    blockedResources
   ];
 
   if (browserChannel) {
@@ -143,27 +196,32 @@ app.post("/api/crawl/start", (req, res) => {
     BROWSER_CHANNEL: browserChannel
   };
 
-  currentProcess = exec(`node main.js ${args.join(" ")}`, {
+  const mainPath = join(__dirname, "main.js");
+  currentProcess = spawn("node", [mainPath, ...args], {
     cwd: __dirname,
-    env,
-    maxBuffer: 50 * 1024 * 1024
+    env
   });
 
-  let outputBuffer = "";
-  let errorBuffer = "";
-
   currentProcess.stdout.on("data", (data) => {
-    outputBuffer += data.toString();
-    const lines = data.toString().split("\n").filter(line => line.trim());
-    lines.forEach(line => {
+    const lines = data
+      .toString()
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean);
+
+    lines.forEach((line) => {
       io.emit("crawl:log", { type: "info", message: line, timestamp: new Date().toISOString() });
     });
   });
 
   currentProcess.stderr.on("data", (data) => {
-    errorBuffer += data.toString();
-    const lines = data.toString().split("\n").filter(line => line.trim());
-    lines.forEach(line => {
+    const lines = data
+      .toString()
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean);
+
+    lines.forEach((line) => {
       io.emit("crawl:log", { type: "error", message: line, timestamp: new Date().toISOString() });
     });
   });
@@ -175,10 +233,10 @@ app.post("/api/crawl/start", (req, res) => {
     io.emit("crawl:status", { status: code === 0 ? "completed" : "failed", exitCode: code });
 
     try {
-      if (fs.existsSync(outputPath)) {
-        const rawData = fs.readFileSync(outputPath, "utf-8");
+      if (lastOutputPath && fs.existsSync(lastOutputPath)) {
+        const rawData = fs.readFileSync(lastOutputPath, "utf-8");
         crawlResults = JSON.parse(rawData);
-        io.emit("crawl:complete", { results: crawlResults, outputPath });
+        io.emit("crawl:complete", { results: crawlResults, outputPath: lastOutputPath });
       } else {
         io.emit("crawl:error", { error: "Output file not found" });
       }
@@ -194,15 +252,19 @@ app.post("/api/crawl/start", (req, res) => {
     io.emit("crawl:error", { error: error.message });
   });
 
-  res.json({ success: true, message: "Crawl started", config: { startUrl, maxRequests, outputPath } });
+  res.json({
+    success: true,
+    message: "Crawl started",
+    config: { startUrl, maxRequests, outputPath: outputName }
+  });
 });
 
-app.post("/api/crawl/stop", (req, res) => {
+app.post("/api/crawl/stop", (_req, res) => {
   if (!isCrawling || !currentProcess) {
     return res.status(400).json({ error: "No crawl in progress" });
   }
 
-  currentProcess.kill("SIGTERM");
+  currentProcess.kill();
   isCrawling = false;
   currentProcess = null;
 
@@ -216,7 +278,7 @@ io.on("connection", (socket) => {
   socket.emit("crawl:status", {
     status: isCrawling ? "running" : "idle",
     hasResults: !!crawlResults,
-    outputPath: lastOutputPath
+    outputPath: lastOutputPath ? basename(lastOutputPath) : null
   });
 
   socket.on("disconnect", () => {
@@ -224,14 +286,67 @@ io.on("connection", (socket) => {
   });
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3456;
 
 httpServer.listen(PORT, () => {
   console.log(`
 ╔═══════════════════════════════════════════════════╗
-║     🌐 Web Intelligent Function Navigation       ║
+║     Web Intelligent Function Navigation          ║
 ║                                                   ║
 ║     Server running at http://localhost:${PORT}       ║
 ╚═══════════════════════════════════════════════════╝
   `);
 });
+
+function normalizeOutputName(value) {
+  const trimmed = String(value || "").trim();
+  if (!trimmed) return `sitemap-${Date.now()}.json`;
+  return basename(trimmed);
+}
+
+function buildDatabaseIndex() {
+  const entries = fs.readdirSync(databaseDir, { withFileTypes: true });
+  return entries
+    .filter((entry) => entry.isFile() && entry.name.toLowerCase().endsWith(".json"))
+    .map((entry) => {
+      const filePath = join(databaseDir, entry.name);
+      const stats = fs.statSync(filePath);
+      return {
+        name: entry.name,
+        size: stats.size,
+        updatedAt: stats.mtime.toISOString()
+      };
+    })
+    .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+}
+
+function resolveDatasetPath(rawName) {
+  const safeName = basename(String(rawName || "").trim());
+  if (!safeName || safeName !== rawName) {
+    return null;
+  }
+  if (!safeName.toLowerCase().endsWith(".json")) {
+    return null;
+  }
+  return join(databaseDir, safeName);
+}
+
+function listDatabaseFiles() {
+  if (!fs.existsSync(databaseDir)) {
+    return [];
+  }
+
+  return fs
+    .readdirSync(databaseDir, { withFileTypes: true })
+    .filter((entry) => entry.isFile() && extname(entry.name).toLowerCase() === ".json")
+    .map((entry) => {
+      const fullPath = join(databaseDir, entry.name);
+      const stats = fs.statSync(fullPath);
+      return {
+        name: entry.name,
+        size: stats.size,
+        mtimeMs: stats.mtimeMs
+      };
+    })
+    .sort((a, b) => b.mtimeMs - a.mtimeMs);
+}

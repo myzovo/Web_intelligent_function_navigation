@@ -1,0 +1,1273 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Crawl Report</title>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,600;9..144,700&family=Space+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap");
+
+    :root {
+      --bg: #f7f1e5;
+      --bg-2: #f3e6d4;
+      --ink: #1d1a14;
+      --muted: #6b6258;
+      --accent: #f05a28;
+      --accent-2: #0f6b68;
+      --card: #fff9ef;
+      --stroke: #e3d4c2;
+      --shadow: rgba(29, 26, 20, 0.08);
+      --glow: rgba(240, 90, 40, 0.15);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: "Space Grotesk", "Trebuchet MS", sans-serif;
+      background: linear-gradient(160deg, var(--bg) 0%, var(--bg-2) 45%, #f6efe3 100%);
+      min-height: 100vh;
+      position: relative;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(circle at 12% 18%, rgba(240, 90, 40, 0.1), transparent 40%),
+        radial-gradient(circle at 88% 12%, rgba(15, 107, 104, 0.12), transparent 45%),
+        radial-gradient(circle at 80% 80%, rgba(240, 90, 40, 0.08), transparent 40%),
+        linear-gradient(120deg, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0));
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .orb {
+      position: fixed;
+      width: 280px;
+      height: 280px;
+      border-radius: 999px;
+      filter: blur(40px);
+      opacity: 0.4;
+      z-index: 0;
+    }
+
+    .orb.one {
+      background: #f05a28;
+      top: -120px;
+      right: -80px;
+    }
+
+    .orb.two {
+      background: #0f6b68;
+      bottom: -140px;
+      left: -60px;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 20px 18px 36px;
+    }
+
+    header.hero {
+      display: grid;
+      gap: 16px;
+      padding: 20px;
+      border: 1px solid var(--stroke);
+      border-radius: 22px;
+      background: var(--card);
+      box-shadow: 0 20px 50px var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    header.hero::after {
+      content: "";
+      position: absolute;
+      width: 320px;
+      height: 140px;
+      top: -60px;
+      left: 20%;
+      background: linear-gradient(90deg, rgba(240, 90, 40, 0.15), rgba(15, 107, 104, 0.12));
+      transform: rotate(-8deg);
+      border-radius: 999px;
+      opacity: 0.7;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: rgba(15, 107, 104, 0.12);
+      color: var(--accent-2);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    header.hero h1 {
+      margin: 6px 0 0;
+      font-family: "Fraunces", "Georgia", serif;
+      font-size: clamp(22px, 3.5vw, 36px);
+      line-height: 1.15;
+    }
+
+    header.hero p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      max-width: 600px;
+    }
+
+    .hero-meta {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      margin-top: 4px;
+    }
+
+    .meta-card {
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px dashed var(--stroke);
+      background: rgba(255, 255, 255, 0.6);
+      display: grid;
+      gap: 8px;
+    }
+
+    .meta-card label {
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .control {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    select,
+    input[type="search"] {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--stroke);
+      background: #fff;
+      font-family: "Space Grotesk", "Trebuchet MS", sans-serif;
+      font-size: 13px;
+      color: var(--ink);
+      min-width: 140px;
+    }
+
+    button {
+      padding: 8px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--ink);
+      background: var(--ink);
+      color: #fff;
+      font-weight: 600;
+      font-size: 12px;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 8px 16px rgba(29, 26, 20, 0.12);
+    }
+
+    button.secondary {
+      background: #fff;
+      color: var(--ink);
+      border-color: var(--stroke);
+      box-shadow: none;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    button:hover:not(:disabled) {
+      transform: translateY(-1px);
+    }
+
+    main {
+      margin-top: 24px;
+      display: grid;
+      gap: 18px;
+    }
+
+    section.panel {
+      padding: 20px;
+      border-radius: 20px;
+      border: 1px solid var(--stroke);
+      background: var(--card);
+      box-shadow: 0 12px 32px var(--shadow);
+    }
+
+    .panel-header {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .panel-header h2 {
+      margin: 0;
+      font-family: "Fraunces", "Georgia", serif;
+      font-size: 20px;
+    }
+
+    .panel-header .tools {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .subtle {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .stat-grid {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+
+    .stat {
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid var(--stroke);
+      background: #fff;
+      display: grid;
+      gap: 6px;
+    }
+
+    .stat .value {
+      font-size: 24px;
+      font-weight: 700;
+      font-family: "IBM Plex Mono", "Courier New", monospace;
+    }
+
+    .stat .label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+
+    .grid-2 {
+      display: grid;
+      gap: 18px;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    }
+
+    .bar-chart {
+      display: grid;
+      gap: 10px;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: minmax(80px, 120px) 1fr;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .bar-label {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .bar-wrap {
+      position: relative;
+      height: 26px;
+      border-radius: 999px;
+      background: #f0e6d8;
+      overflow: hidden;
+      border: 1px solid rgba(227, 212, 194, 0.8);
+    }
+
+    .bar {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      box-shadow: 0 0 14px var(--glow);
+      transition: width 0.7s ease;
+    }
+
+    .bar-value {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 12px;
+      color: var(--ink);
+      font-family: "IBM Plex Mono", "Courier New", monospace;
+    }
+
+    .table-wrap {
+      overflow: auto;
+      border-radius: 14px;
+      border: 1px solid var(--stroke);
+      background: #fff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 600px;
+    }
+
+    thead th {
+      text-align: left;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--stroke);
+      background: #f8f2e7;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid rgba(227, 212, 194, 0.6);
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    tbody tr:hover {
+      background: rgba(240, 90, 40, 0.08);
+    }
+
+    tbody tr.active {
+      background: rgba(15, 107, 104, 0.12);
+    }
+
+    td {
+      padding: 10px 12px;
+      vertical-align: top;
+      font-size: 13px;
+    }
+
+    td.mono {
+      font-family: "IBM Plex Mono", "Courier New", monospace;
+      font-size: 11px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      background: rgba(240, 90, 40, 0.12);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .detail {
+      display: grid;
+      gap: 12px;
+    }
+
+    .detail-card {
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid var(--stroke);
+      background: #fff;
+      display: grid;
+      gap: 8px;
+    }
+
+    .detail-card h3 {
+      margin: 0;
+      font-size: 15px;
+    }
+
+    .detail-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .element-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .element-card {
+      padding: 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(227, 212, 194, 0.8);
+      background: #fdf9f1;
+      display: grid;
+      gap: 6px;
+    }
+
+    .element-title {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+    }
+
+    .element-body {
+      display: grid;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .element-body code {
+      font-family: "IBM Plex Mono", "Courier New", monospace;
+      font-size: 11px;
+      color: var(--ink);
+      background: rgba(15, 107, 104, 0.08);
+      padding: 2px 6px;
+      border-radius: 8px;
+      word-break: break-all;
+    }
+
+    .foot {
+      margin-top: 24px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 12px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .empty {
+      padding: 18px;
+      border-radius: 14px;
+      border: 1px dashed var(--stroke);
+      color: var(--muted);
+      text-align: center;
+      background: rgba(255, 255, 255, 0.7);
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    body.ready .reveal {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 720px) {
+      header.hero {
+        padding: 16px;
+      }
+
+      .panel-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .panel-header .tools {
+        width: 100%;
+      }
+
+      select,
+      input[type="search"] {
+        width: 100%;
+      }
+
+      button {
+        width: 100%;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        transition: none !important;
+        animation: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="orb one"></div>
+  <div class="orb two"></div>
+  <div class="container">
+    <header class="hero">
+      <div class="chip">Crawl Report</div>
+      <h1>Interactive Crawl Report</h1>
+      <p>Explore a visual summary of the crawl results, inspect element mix, and drill into per-page details.</p>
+      <div class="hero-meta">
+        <div class="meta-card" id="datasetMeta">
+          <label>Dataset</label>
+          <div id="datasetMetaContent">No data loaded yet.</div>
+        </div>
+        <div class="meta-card">
+          <label>Load data</label>
+          <div class="control">
+            <select id="datasetSelect"></select>
+            <button id="loadFileBtn" class="secondary">Load JSON</button>
+            <input id="fileInput" type="file" accept="application/json" />
+          </div>
+          <div class="subtle" id="datasetHint">Open from the console or upload a JSON file.</div>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="panel reveal" id="statsPanel">
+        <div class="panel-header">
+          <h2>Snapshot</h2>
+          <span class="subtle" id="snapshotNote"></span>
+        </div>
+        <div class="stat-grid" id="statGrid"></div>
+      </section>
+
+      <section class="grid-2 reveal" id="chartsPanel">
+        <div class="panel">
+          <div class="panel-header">
+            <h2>Element Mix</h2>
+            <span class="subtle" id="elementMixNote"></span>
+          </div>
+          <div class="bar-chart" id="typeChart"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-header">
+            <h2>Top Pages</h2>
+            <span class="subtle" id="topPagesNote"></span>
+          </div>
+          <div class="bar-chart" id="topPagesChart"></div>
+        </div>
+      </section>
+
+      <section class="panel reveal" id="pagesPanel">
+        <div class="panel-header">
+          <h2>Pages</h2>
+          <div class="tools">
+            <input id="pageSearch" type="search" placeholder="Filter by URL or title" />
+            <button id="downloadCsv" class="secondary">Download CSV</button>
+            <button id="downloadJson" class="secondary">Download JSON</button>
+          </div>
+        </div>
+        <div class="table-wrap" id="pagesTableWrap"></div>
+      </section>
+
+      <section class="panel reveal" id="detailPanel">
+        <div class="panel-header">
+          <h2>Page Detail</h2>
+          <div class="tools">
+            <input id="elementSearch" type="search" placeholder="Filter elements" />
+            <select id="elementTypeFilter"></select>
+          </div>
+        </div>
+        <div class="detail" id="pageDetail"></div>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <span id="renderedAt"></span>
+      <span>Local report view</span>
+    </footer>
+  </div>
+
+  <script>
+    (function () {
+      const defaultSources = [
+        { file: "sitemap-baidu.json", label: "sitemap-baidu.json" },
+        { file: "sitemap.json", label: "sitemap.json" }
+      ];
+
+      const state = {
+        datasets: [],
+        selectedId: "",
+        selectedPageIndex: null,
+        pageFilter: "",
+        elementFilter: "",
+        elementType: "",
+        showAllElements: false
+      };
+
+      const elements = {
+        datasetSelect: document.getElementById("datasetSelect"),
+        datasetMetaContent: document.getElementById("datasetMetaContent"),
+        datasetHint: document.getElementById("datasetHint"),
+        loadFileBtn: document.getElementById("loadFileBtn"),
+        fileInput: document.getElementById("fileInput"),
+        statGrid: document.getElementById("statGrid"),
+        snapshotNote: document.getElementById("snapshotNote"),
+        elementMixNote: document.getElementById("elementMixNote"),
+        topPagesNote: document.getElementById("topPagesNote"),
+        typeChart: document.getElementById("typeChart"),
+        topPagesChart: document.getElementById("topPagesChart"),
+        pagesTableWrap: document.getElementById("pagesTableWrap"),
+        pageSearch: document.getElementById("pageSearch"),
+        downloadCsv: document.getElementById("downloadCsv"),
+        downloadJson: document.getElementById("downloadJson"),
+        elementSearch: document.getElementById("elementSearch"),
+        elementTypeFilter: document.getElementById("elementTypeFilter"),
+        pageDetail: document.getElementById("pageDetail"),
+        renderedAt: document.getElementById("renderedAt")
+      };
+
+      function clearNode(node) {
+        while (node.firstChild) {
+          node.removeChild(node.firstChild);
+        }
+      }
+
+      function formatNumber(value) {
+        if (Number.isFinite(value)) {
+          return value.toLocaleString();
+        }
+        return "0";
+      }
+
+      function safeUrl(url) {
+        try {
+          return new URL(url);
+        } catch (error) {
+          return null;
+        }
+      }
+
+      function datasetId(source) {
+        return `${source.file}-${Math.random().toString(36).slice(2, 8)}`;
+      }
+
+      function addDataset(source, data, origin) {
+        const pages = Array.isArray(data.pages) ? data.pages : [];
+        if (!pages.length) {
+          return;
+        }
+        const entry = {
+          id: datasetId(source),
+          name: source.label,
+          source: source.file,
+          origin,
+          data
+        };
+        state.datasets.push(entry);
+        if (!state.selectedId) {
+          state.selectedId = entry.id;
+        }
+      }
+
+      async function loadDefaultSources() {
+        const results = await Promise.allSettled(
+          defaultSources.map(async (source) => {
+            const response = await fetch(source.file, { cache: "no-store" });
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status}`);
+            }
+            const text = await response.text();
+            const data = JSON.parse(text);
+            addDataset(source, data, "local");
+            return source.file;
+          })
+        );
+
+        const loaded = results.filter((result) => result.status === "fulfilled").length;
+        if (loaded === 0) {
+          elements.datasetHint.textContent = "No local JSON found. Use Load JSON or open from the console.";
+        }
+      }
+
+      async function loadLatestFromServer() {
+        const response = await fetch("/api/results", { cache: "no-store" });
+        if (!response.ok) {
+          throw new Error("Latest results not available");
+        }
+        const data = await response.json();
+        addDataset({ file: "latest", label: "Latest (server)" }, data, "server");
+        elements.datasetHint.textContent = "Loaded latest results from server.";
+      }
+
+      async function loadDatasetFromServer(fileName) {
+        const response = await fetch(`/api/datasets/${encodeURIComponent(fileName)}`, { cache: "no-store" });
+        if (!response.ok) {
+          throw new Error("Dataset not available");
+        }
+        const data = await response.json();
+        addDataset({ file: fileName, label: fileName }, data, "database");
+        elements.datasetHint.textContent = `Loaded ${fileName} from database.`;
+      }
+
+      function normalizeData(raw) {
+        const pages = Array.isArray(raw.pages) ? raw.pages : [];
+        return {
+          startUrl: raw.startUrl || "",
+          totalPages: Number.isFinite(raw.totalPages) ? raw.totalPages : pages.length,
+          pages
+        };
+      }
+
+      function buildStats(data) {
+        const pages = data.pages;
+        let elementCount = 0;
+        const hrefSet = new Set();
+        const domains = new Set();
+
+        pages.forEach((page) => {
+          const items = Array.isArray(page.elements) ? page.elements : [];
+          elementCount += items.length;
+          const pageUrl = safeUrl(page.url);
+          if (pageUrl) {
+            domains.add(pageUrl.hostname);
+          }
+          items.forEach((item) => {
+            if (item.href) {
+              hrefSet.add(item.href);
+            }
+          });
+        });
+
+        const average = pages.length ? elementCount / pages.length : 0;
+
+        return {
+          elementCount,
+          hrefCount: hrefSet.size,
+          domainCount: domains.size,
+          average
+        };
+      }
+
+      function buildTypeCounts(pages) {
+        const counts = {};
+        pages.forEach((page) => {
+          const items = Array.isArray(page.elements) ? page.elements : [];
+          items.forEach((item) => {
+            const type = item.type || "unknown";
+            counts[type] = (counts[type] || 0) + 1;
+          });
+        });
+        return counts;
+      }
+
+      function buildPageEntries(pages) {
+        return pages.map((page, index) => {
+          const items = Array.isArray(page.elements) ? page.elements : [];
+          const typeCounts = buildTypeCounts([{ elements: items }]);
+          const hrefSet = new Set();
+          items.forEach((item) => {
+            if (item.href) {
+              hrefSet.add(item.href);
+            }
+          });
+          return {
+            index,
+            url: page.url || "",
+            title: page.title || "",
+            elements: items,
+            elementCount: items.length,
+            hrefCount: hrefSet.size,
+            typeCounts
+          };
+        });
+      }
+
+      function renderStatGrid(stats, data) {
+        clearNode(elements.statGrid);
+        const cards = [
+          { label: "Pages crawled", value: formatNumber(data.pages.length) },
+          { label: "Total pages", value: formatNumber(data.totalPages) },
+          { label: "Elements found", value: formatNumber(stats.elementCount) },
+          { label: "Unique hrefs", value: formatNumber(stats.hrefCount) },
+          { label: "Domains", value: formatNumber(stats.domainCount) },
+          { label: "Avg elements", value: stats.average.toFixed(1) }
+        ];
+        cards.forEach((card) => {
+          const node = document.createElement("div");
+          node.className = "stat";
+          const value = document.createElement("div");
+          value.className = "value";
+          value.textContent = card.value;
+          const label = document.createElement("div");
+          label.className = "label";
+          label.textContent = card.label;
+          node.appendChild(value);
+          node.appendChild(label);
+          elements.statGrid.appendChild(node);
+        });
+      }
+
+      function renderBarChart(container, items) {
+        clearNode(container);
+        if (!items.length) {
+          const empty = document.createElement("div");
+          empty.className = "empty";
+          empty.textContent = "No data available.";
+          container.appendChild(empty);
+          return;
+        }
+        const max = Math.max(...items.map((item) => item.value));
+        items.forEach((item) => {
+          const row = document.createElement("div");
+          row.className = "bar-row";
+
+          const label = document.createElement("div");
+          label.className = "bar-label";
+          label.textContent = item.label;
+
+          const wrap = document.createElement("div");
+          wrap.className = "bar-wrap";
+
+          const bar = document.createElement("div");
+          bar.className = "bar";
+          bar.style.width = "0%";
+
+          const value = document.createElement("div");
+          value.className = "bar-value";
+          value.textContent = formatNumber(item.value);
+
+          wrap.appendChild(bar);
+          wrap.appendChild(value);
+          row.appendChild(label);
+          row.appendChild(wrap);
+          container.appendChild(row);
+
+          const target = max ? (item.value / max) * 100 : 0;
+          requestAnimationFrame(() => {
+            bar.style.width = `${target}%`;
+          });
+        });
+      }
+
+      function renderPagesTable(pageEntries) {
+        clearNode(elements.pagesTableWrap);
+        if (!pageEntries.length) {
+          const empty = document.createElement("div");
+          empty.className = "empty";
+          empty.textContent = "No pages match the filter.";
+          elements.pagesTableWrap.appendChild(empty);
+          return;
+        }
+
+        const table = document.createElement("table");
+        const thead = document.createElement("thead");
+        const headerRow = document.createElement("tr");
+        ["Title", "URL", "Elements", "Unique hrefs"].forEach((label) => {
+          const th = document.createElement("th");
+          th.textContent = label;
+          headerRow.appendChild(th);
+        });
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+
+        const tbody = document.createElement("tbody");
+        pageEntries.forEach((page) => {
+          const row = document.createElement("tr");
+          if (page.index === state.selectedPageIndex) {
+            row.classList.add("active");
+          }
+
+          const title = document.createElement("td");
+          title.textContent = page.title || "(untitled)";
+
+          const url = document.createElement("td");
+          url.className = "mono";
+          url.textContent = page.url;
+
+          const count = document.createElement("td");
+          count.textContent = formatNumber(page.elementCount);
+
+          const hrefs = document.createElement("td");
+          hrefs.textContent = formatNumber(page.hrefCount);
+
+          row.appendChild(title);
+          row.appendChild(url);
+          row.appendChild(count);
+          row.appendChild(hrefs);
+
+          row.addEventListener("click", () => {
+            state.selectedPageIndex = page.index;
+            state.showAllElements = false;
+            renderDetail(pageEntries);
+            renderPagesTable(pageEntries);
+          });
+
+          tbody.appendChild(row);
+        });
+
+        table.appendChild(tbody);
+        elements.pagesTableWrap.appendChild(table);
+      }
+
+      function renderDetail(pageEntries) {
+        clearNode(elements.pageDetail);
+        if (!pageEntries.length) {
+          const empty = document.createElement("div");
+          empty.className = "empty";
+          empty.textContent = "Select a page to inspect its elements.";
+          elements.pageDetail.appendChild(empty);
+          return;
+        }
+
+        const selected = pageEntries.find((page) => page.index === state.selectedPageIndex) || pageEntries[0];
+        state.selectedPageIndex = selected.index;
+
+        const card = document.createElement("div");
+        card.className = "detail-card";
+
+        const title = document.createElement("h3");
+        title.textContent = selected.title || "(untitled)";
+
+        const meta = document.createElement("div");
+        meta.className = "detail-meta";
+        meta.textContent = `${selected.url} · ${formatNumber(selected.elementCount)} elements`;
+
+        card.appendChild(title);
+        card.appendChild(meta);
+
+        const elementList = document.createElement("div");
+        elementList.className = "element-list";
+
+        const filtered = selected.elements.filter((item) => {
+          const text = `${item.text || ""} ${item.href || ""} ${item.selector || ""}`.toLowerCase();
+          const searchMatch = !state.elementFilter || text.includes(state.elementFilter);
+          const typeMatch = !state.elementType || (item.type || "unknown") === state.elementType;
+          return searchMatch && typeMatch;
+        });
+
+        const maxVisible = state.showAllElements ? filtered.length : Math.min(filtered.length, 80);
+        filtered.slice(0, maxVisible).forEach((item) => {
+          const entry = document.createElement("div");
+          entry.className = "element-card";
+
+          const header = document.createElement("div");
+          header.className = "element-title";
+
+          const tag = document.createElement("span");
+          tag.className = "tag";
+          tag.textContent = item.type || "unknown";
+
+          const text = document.createElement("span");
+          text.textContent = item.text || "(no text)";
+
+          header.appendChild(tag);
+          header.appendChild(text);
+
+          const body = document.createElement("div");
+          body.className = "element-body";
+
+          const hrefLine = document.createElement("div");
+          if (item.href) {
+            const link = document.createElement("a");
+            link.href = item.href;
+            link.textContent = item.href;
+            link.target = "_blank";
+            link.rel = "noreferrer";
+            hrefLine.appendChild(link);
+          } else {
+            hrefLine.textContent = "(no href)";
+          }
+
+          const selectorLine = document.createElement("div");
+          const selectorCode = document.createElement("code");
+          selectorCode.textContent = item.selector || "(no selector)";
+          selectorLine.appendChild(selectorCode);
+
+          body.appendChild(hrefLine);
+          body.appendChild(selectorLine);
+
+          if (item.context) {
+            const contextLine = document.createElement("div");
+            contextLine.textContent = item.context;
+            body.appendChild(contextLine);
+          }
+
+          entry.appendChild(header);
+          entry.appendChild(body);
+          elementList.appendChild(entry);
+        });
+
+        card.appendChild(elementList);
+        elements.pageDetail.appendChild(card);
+
+        if (filtered.length > maxVisible) {
+          const more = document.createElement("button");
+          more.className = "secondary";
+          more.textContent = `Show ${formatNumber(filtered.length - maxVisible)} more elements`;
+          more.addEventListener("click", () => {
+            state.showAllElements = true;
+            renderDetail(pageEntries);
+          });
+          elements.pageDetail.appendChild(more);
+        }
+      }
+
+      function renderDatasetMeta(dataset, data) {
+        clearNode(elements.datasetMetaContent);
+        const wrap = document.createElement("div");
+        wrap.className = "detail-meta";
+
+        const startUrl = document.createElement("div");
+        if (data.startUrl) {
+          const link = document.createElement("a");
+          link.href = data.startUrl;
+          link.textContent = data.startUrl;
+          link.target = "_blank";
+          link.rel = "noreferrer";
+          startUrl.appendChild(link);
+        } else {
+          startUrl.textContent = "(no start URL)";
+        }
+
+        const source = document.createElement("div");
+        const originNote = dataset.origin ? ` (${dataset.origin})` : "";
+        source.textContent = `Source: ${dataset.source}${originNote}`;
+
+        const count = document.createElement("div");
+        count.textContent = `Pages: ${formatNumber(data.pages.length)} / ${formatNumber(data.totalPages)}`;
+
+        wrap.appendChild(startUrl);
+        wrap.appendChild(source);
+        wrap.appendChild(count);
+        elements.datasetMetaContent.appendChild(wrap);
+      }
+
+      function updateElementTypeFilter(typeCounts) {
+        clearNode(elements.elementTypeFilter);
+        const allOption = document.createElement("option");
+        allOption.value = "";
+        allOption.textContent = "All types";
+        elements.elementTypeFilter.appendChild(allOption);
+
+        Object.keys(typeCounts)
+          .sort((a, b) => typeCounts[b] - typeCounts[a])
+          .forEach((type) => {
+            const option = document.createElement("option");
+            option.value = type;
+            option.textContent = `${type} (${formatNumber(typeCounts[type])})`;
+            elements.elementTypeFilter.appendChild(option);
+          });
+
+        elements.elementTypeFilter.value = state.elementType;
+      }
+
+      function render() {
+        const dataset = state.datasets.find((entry) => entry.id === state.selectedId);
+        if (!dataset) {
+          renderEmpty();
+          return;
+        }
+
+        const data = normalizeData(dataset.data);
+        const stats = buildStats(data);
+        const typeCounts = buildTypeCounts(data.pages);
+        const pageEntries = buildPageEntries(data.pages);
+
+        renderDatasetMeta(dataset, data);
+        renderStatGrid(stats, data);
+        elements.snapshotNote.textContent = `Rendered from ${dataset.source}${dataset.origin ? ` (${dataset.origin})` : ""}`;
+
+        const typeItems = Object.keys(typeCounts)
+          .map((key) => ({ label: key, value: typeCounts[key] }))
+          .sort((a, b) => b.value - a.value)
+          .slice(0, 8);
+        elements.elementMixNote.textContent = `${typeItems.length} types shown`;
+        renderBarChart(elements.typeChart, typeItems);
+
+        const topPages = [...pageEntries]
+          .sort((a, b) => b.elementCount - a.elementCount)
+          .slice(0, 6)
+          .map((page) => ({
+            label: page.title || page.url,
+            value: page.elementCount
+          }));
+        elements.topPagesNote.textContent = "Top 6 by element count";
+        renderBarChart(elements.topPagesChart, topPages);
+
+        const filter = state.pageFilter.trim();
+        const filteredPages = filter
+          ? pageEntries.filter((page) => {
+              const text = `${page.title} ${page.url}`.toLowerCase();
+              return text.includes(filter);
+            })
+          : pageEntries;
+
+        renderPagesTable(filteredPages);
+        updateElementTypeFilter(typeCounts);
+        renderDetail(filteredPages);
+
+        elements.downloadCsv.disabled = filteredPages.length === 0;
+        elements.downloadCsv.onclick = () => downloadCsv(filteredPages, dataset);
+        elements.downloadJson.disabled = filteredPages.length === 0;
+        elements.downloadJson.onclick = () => downloadJson(filteredPages, dataset);
+      }
+
+      function renderEmpty() {
+        clearNode(elements.statGrid);
+        clearNode(elements.typeChart);
+        clearNode(elements.topPagesChart);
+        clearNode(elements.pagesTableWrap);
+        clearNode(elements.pageDetail);
+        elements.datasetMetaContent.textContent = "No data loaded yet.";
+      }
+
+      function downloadCsv(pages, dataset) {
+        const lines = ["title,url,elementCount,uniqueHrefs"];
+        pages.forEach((page) => {
+          const row = [
+            csvCell(page.title || ""),
+            csvCell(page.url || ""),
+            page.elementCount,
+            page.hrefCount
+          ];
+          lines.push(row.join(","));
+        });
+        triggerDownload(new Blob([lines.join("\r\n")], { type: "text/csv;charset=utf-8" }), `${dataset.source.replace(/\.json$/i, "")}-pages.csv`);
+      }
+
+      function downloadJson(pages, dataset) {
+        const payload = {
+          source: dataset.source,
+          startUrl: dataset.data.startUrl || "",
+          totalPages: dataset.data.totalPages || pages.length,
+          exportedAt: new Date().toISOString(),
+          pageCount: pages.length,
+          pages
+        };
+        triggerDownload(
+          new Blob([JSON.stringify(payload, null, 2)], { type: "application/json;charset=utf-8" }),
+          `${dataset.source.replace(/\.json$/i, "")}-pages.json`
+        );
+      }
+
+      function csvCell(value) {
+        return `"${String(value).replace(/"/g, '""')}"`;
+      }
+
+      function triggerDownload(blob, filename) {
+        const link = document.createElement("a");
+        const objectUrl = URL.createObjectURL(blob);
+        link.href = objectUrl;
+        link.download = filename;
+        link.rel = "noopener";
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(objectUrl), 0);
+      }
+
+      function setupEvents() {
+        elements.datasetSelect.addEventListener("change", (event) => {
+          state.selectedId = event.target.value;
+          state.selectedPageIndex = null;
+          state.showAllElements = false;
+          render();
+        });
+
+        elements.loadFileBtn.addEventListener("click", () => {
+          elements.fileInput.click();
+        });
+
+        elements.fileInput.addEventListener("change", async (event) => {
+          const file = event.target.files[0];
+          if (!file) {
+            return;
+          }
+          try {
+            const text = await file.text();
+            const data = JSON.parse(text);
+            const source = { file: file.name, label: file.name };
+            addDataset(source, data, "upload");
+            refreshDatasetSelect();
+            render();
+          } catch (error) {
+            elements.datasetHint.textContent = "Failed to parse the JSON file.";
+          }
+        });
+
+        elements.pageSearch.addEventListener("input", (event) => {
+          state.pageFilter = event.target.value.toLowerCase();
+          state.selectedPageIndex = null;
+          render();
+        });
+
+        elements.elementSearch.addEventListener("input", (event) => {
+          state.elementFilter = event.target.value.toLowerCase();
+          render();
+        });
+
+        elements.elementTypeFilter.addEventListener("change", (event) => {
+          state.elementType = event.target.value;
+          render();
+        });
+      }
+
+      function refreshDatasetSelect() {
+        clearNode(elements.datasetSelect);
+        state.datasets.forEach((dataset) => {
+          const option = document.createElement("option");
+          option.value = dataset.id;
+          option.textContent = dataset.name;
+          elements.datasetSelect.appendChild(option);
+        });
+        elements.datasetSelect.value = state.selectedId;
+      }
+
+      async function init() {
+        elements.fileInput.style.display = "none";
+        elements.renderedAt.textContent = `Rendered at ${new Date().toLocaleString()}`;
+        const query = new URLSearchParams(window.location.search);
+        const fileParam = query.get("file");
+        const sourceParam = query.get("source");
+        const hasQuery = Boolean(fileParam || sourceParam === "latest");
+        let loaded = false;
+
+        if (fileParam) {
+          try {
+            await loadDatasetFromServer(fileParam);
+            loaded = true;
+          } catch (error) {
+            elements.datasetHint.textContent = `Failed to load ${fileParam} from database.`;
+          }
+        } else if (sourceParam === "latest") {
+          try {
+            await loadLatestFromServer();
+            loaded = true;
+          } catch (error) {
+            elements.datasetHint.textContent = "Failed to load latest results from server.";
+          }
+        }
+
+        if (!loaded && !hasQuery) {
+          await loadDefaultSources();
+        }
+        refreshDatasetSelect();
+        setupEvents();
+        render();
+        document.body.classList.add("ready");
+      }
+
+      init();
+    })();
+  </script>
+</body>
+</html>

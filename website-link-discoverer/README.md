@@ -177,14 +177,14 @@ If you prefer a browser UI to start crawls and inspect results:
 Start the server:
 
 ```bash
-node server.js
+npm run server
 ```
 
 2. 打开：
 
 Open:
 
-`http://localhost:3000`
+`http://localhost:3456`
 
 3. 在页面里填写以下字段并点击开始：
 
@@ -202,6 +202,15 @@ Fill these fields in the UI and click “Start”:
   - Request Handler Timeout: handler timeout (seconds)
 - Browser Channel：`chrome` 或 `msedge`
   - Browser Channel: `chrome` or `msedge`
+- Blocked Resources：阻断资源类型（默认 `image,font,media`）
+  - Blocked Resources: blocked resource types (default `image,font,media`)
+- Sensitive Words：危险词列表（逗号分隔）
+  - Sensitive Words: comma-separated dangerous words
+- Max Retries：最大重试次数
+  - Max Retries: max retries
+
+结果文件会保存在 `website-link-discoverer/outputs/` 目录中。
+Output files are saved under `website-link-discoverer/outputs/`.
 
 停止按钮会调用 `/api/crawl/stop`。
 The stop button calls `/api/crawl/stop`.
@@ -209,11 +218,11 @@ The stop button calls `/api/crawl/stop`.
 ## 故障排查 / Troubleshooting
 
 - 报错 “Failed to launch browser / executable doesn't exist”：
-  1) 先运行 `npx playwright install chromium`（或你要用的浏览器通道）
-  2) 或设置 `BROWSER_CHANNEL=msedge|chrome` 使用系统浏览器
+  1. 先运行 `npx playwright install chromium`（或你要用的浏览器通道）
+  2. 或设置 `BROWSER_CHANNEL=msedge|chrome` 使用系统浏览器
   - Error about missing browser executable:
-    1) Run `npx playwright install chromium` (or the browser you need)
-    2) Or set `BROWSER_CHANNEL=msedge|chrome` to use a system browser
+    1. Run `npx playwright install chromium` (or the browser you need)
+    2. Or set `BROWSER_CHANNEL=msedge|chrome` to use a system browser
 
 - 输出没有 elements：
   - 先确认抓取成功（日志里是否 `Processing ...` 后面有成功）

@@ -1,9 +1,0 @@
-{
-	"id": "IcrB057pPINn7Sd",
-	"json": "{\"id\":\"IcrB057pPINn7Sd\",\"url\":\"https://www.baidu.com/licence/\",\"loadedUrl\":\"https://www.baidu.com/licence/\",\"uniqueKey\":\"https://www.baidu.com/licence\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"__crawlee\":{\"crawlDepth\":1,\"enqueueStrategy\":\"same-hostname\",\"state\":4}},\"handledAt\":\"2026-04-29T00:15:00.036Z\"}",
-	"method": "GET",
-	"orderNo": null,
-	"retryCount": 0,
-	"uniqueKey": "https://www.baidu.com/licence",
-	"url": "https://www.baidu.com/licence/"
-}
