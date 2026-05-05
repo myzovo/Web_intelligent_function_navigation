@@ -1,29 +1,59 @@
 {
-  "requestsFinished": 1,
-  "requestsFailed": 0,
-  "requestsRetries": 0,
+  "requestsFinished": 97,
+  "requestsFailed": 2,
+  "requestsRetries": 12,
   "requestsFailedPerMinute": 0,
   "requestsFinishedPerMinute": 9,
-  "requestMinDurationMillis": 5264,
-  "requestMaxDurationMillis": 5264,
-  "requestTotalFailedDurationMillis": 0,
-  "requestTotalFinishedDurationMillis": 5264,
-  "crawlerStartedAt": "2026-04-29T14:53:45.738Z",
-  "crawlerFinishedAt": "2026-04-29T14:53:52.610Z",
-  "statsPersistedAt": "2026-04-29T14:53:52.610Z",
-  "crawlerRuntimeMillis": 6977,
-  "crawlerLastStartTimestamp": 1777474425633,
+  "requestMinDurationMillis": 898,
+  "requestMaxDurationMillis": 16414,
+  "requestTotalFailedDurationMillis": 8426,
+  "requestTotalFinishedDurationMillis": 607709,
+  "crawlerStartedAt": "2026-05-05T09:47:35.693Z",
+  "crawlerFinishedAt": "2026-05-05T09:58:57.137Z",
+  "statsPersistedAt": "2026-05-05T09:58:57.137Z",
+  "crawlerRuntimeMillis": 681554,
+  "crawlerLastStartTimestamp": 1777974455583,
   "requestRetryHistogram": [
-    1
+    87,
+    12
   ],
   "statsId": 0,
-  "requestAvgFailedDurationMillis": null,
-  "requestAvgFinishedDurationMillis": 5264,
-  "requestTotalDurationMillis": 5264,
-  "requestsTotal": 1,
+  "requestAvgFailedDurationMillis": 4213,
+  "requestAvgFinishedDurationMillis": 6265,
+  "requestTotalDurationMillis": 616135,
+  "requestsTotal": 99,
   "requestsWithStatusCode": {
-    "200": 1
+    "200": 111
   },
-  "errors": {},
-  "retryErrors": {}
+  "errors": {
+    "C:\\Users\\zhu\\Desktop\\PM\\Web_intelligent_function_navigation\\website-link-discoverer\\main.js:217:14": {
+      "missing error code": {
+        "Error": {
+          "page.evaluate: Execution context was destroyed, most likely because of a _": {
+            "count": 2
+          }
+        }
+      }
+    }
+  },
+  "retryErrors": {
+    "C:\\Users\\zhu\\Desktop\\PM\\Web_intelligent_function_navigation\\website-link-discoverer\\main.js:232:30": {
+      "missing error code": {
+        "Error": {
+          "page.$$: Execution context was destroyed, most likely because of a navigation": {
+            "count": 8
+          }
+        }
+      }
+    },
+    "C:\\Users\\zhu\\Desktop\\PM\\Web_intelligent_function_navigation\\website-link-discoverer\\main.js:217:14": {
+      "missing error code": {
+        "Error": {
+          "page.evaluate: Execution context was destroyed, most likely because of a _": {
+            "count": 4
+          }
+        }
+      }
+    }
+  }
 }
